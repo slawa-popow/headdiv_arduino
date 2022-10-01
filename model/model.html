@@ -237,7 +237,9 @@
               </g>
             </g>
             <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="16.636" y="17.109">энкодер</text>
-            <rect style="fill: rgb(203, 240, 143); stroke-width: 3px; stroke: rgb(88, 85, 75);" x="190" y="33.959" width="180" height="120" rx="3" ry="3" id="lcd"></rect>
+           <g id="lcd">
+            <rect  style="fill: rgb(203, 240, 143); stroke-width: 3px; stroke: rgb(88, 85, 75);" x="190" y="33.959" width="180" height="125" rx="3" ry="3" ></rect>
+            </g>
             <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="190.548" y="20.798">LCD</text>
             <g transform-origin="77 73" transform="matrix(0.999999, 0, 0, 0.999999, 0.000041, 0.000206)" id="encoder">
               <g transform="matrix(1, 0, 0.000001, 0.989012, -0.407998, -16.634939)">
@@ -270,6 +272,7 @@
     limb = document["limb"]
     enc = document["encoder-svg"]
     encd = document["encoder"]
+    lcd = document["lcd"]
     step = 0
     deg = 0
     glob_raf = None
@@ -285,14 +288,12 @@
                 step = 0
         animate(1)
 
-    def get_center(svg_id) -> tuple:
-        """ Принимает svg объект. Возвращает
-            координаты x, y центра объектa.
-        """
+    def get_center(str_id) -> tuple:
+        svg_id = document[str_id]
         bb = svg_id.getBBox()
         return (int(bb.x + bb.width / 2), int(bb.y + bb.height / 2))
 
-    print(get_center(document["val"]))
+    print(get_center("lcd"))
 
     @bind(document["power-on"], "click")
     def start_rotate(e):
@@ -328,6 +329,21 @@
         print(deg)
 
     # -------------------------------------------------------------------------------
+
+    def wdisplay(txt: str, px: int, py: int) -> None:
+        lcd = document["lcd"]
+        print(lcd.getBBox().x, lcd.getBBox().width)
+        svgNS = "http://www.w3.org/2000/svg"
+        newline = document.createElementNS(svgNS, "text")
+        newline.setAttributeNS(None, "style", "fill: rgb(51, 51, 51); font-family: monospace; font-size: 12px;")
+        newline.setAttributeNS(None, "x", f"{px}")
+        newline.setAttributeNS(None, "y", f"{py}")
+        newline.textContent = txt
+       
+        lcd.appendChild(newline)
+
+        
+
     @bind(document["encoder"], "mouseout")
     def unsel_encoder(e):
         enc.style = "stroke: rgb(0, 0, 0); fill: url(#gradient-10)"
@@ -339,7 +355,15 @@
         if e.which == 2:
             encd.attrs["transform"] = f"scale(0.98), rotate({deg})"
             timer.set_timeout(reset, 150)
+            msg = "7 fghdh температура до"
+            x0, y0 = 195, 50
+            for i in range(1, 9):
+                wdisplay(msg, x0, y0)
+                print(f"x{i} = {x0}  y{i} = {y0}")
+                y0 += 14
 
+                
+            
 
     </script>
       
