@@ -16,11 +16,78 @@
     </head>
 
     <style>
+    html {
+        line-height: 1.4;
+        font-weight: normal;
+        font-size: 1rem;
+        font-family: "Source Sans Pro", Arial, sans-serif;
+        color: rgb(41, 41, 41);
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        margin-bottom: 30px;
+        background-color: #c3cfe267; 
+        border: 1px solid #c3cfe2;
+    }
+    header .title {
+        text-transform: lowercase;
+    }
+    header .about {
+        font-weight: normal;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+    .svg-obj .lcontent {
+        margin: 20px 40px;
+        padding: 0 10px;
+        width: 500px;
+        height: 400px;
+        border: 1px solid rgba(72, 114, 230, 0.493);
+        float: left;
+    }
+    .svg-obj .rcontent {
+        margin: 20px 0;
+        padding: 20 10px;
+        width: 650px;
+        height: 400px;
+        border: 1px solid rgba(72, 114, 230, 0.493);
+        float: left; 
+    }
+    .cntcontent {
+            width: 10px;            
+            float: left;
+            margin: 20px 10px;
+        }
+    .bcontent {
+        clear: both;
+        width: 97%;
+        padding: 20px 20px;
+        border: 1px solid rgba(52, 216, 65, 0.493);
+    }
+       
 
     </style>
 
     <body onload="brython(1)"> 
-    <div class="svg-content">
+    <header>
+        <h1 class="title">Модель делительной головки для станка</h1>
+        <div class="about"> 
+            <svg height="42" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="42"        data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+            <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+        </svg>
+        <a href="https://github.com/slawa-popow/headdiv_arduino">проект</a>
+       </div>
+    </header>
+    <section class="svg-obj">
+    <div class="lcontent">
         <svg width="450" height="350" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient gradientUnits="userSpaceOnUse" x1="171.645" y1="201.89" x2="171.645" y2="210.213" id="gradient-0" gradientTransform="matrix(0.510622, 0, 0, 1.081309, 128.372154, -157.130177)">
@@ -49,9 +116,76 @@
          </g> 
         </svg>
     </div>
-        
+    <!--  -->
+    <div class="cntcontent"></div>
+    <!--  -->
+    <div class="rcontent">
+        <svg width="600" height="400" viewBox="0 0 400 200" 
+        xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+            <defs>
+              <radialGradient gradientUnits="userSpaceOnUse" cx="553.185" cy="313.038" 
+              r="104.465" id="gradient-10" 
+              gradientTransform="matrix(0.805315, -0.586333, 0.670928, 0.901363, -102.328976, 355.227791)">
+                <stop offset="0" style="stop-color: rgb(225, 176, 96);"></stop>
+                <stop offset="1" style="stop-color: rgb(133, 89, 35);"></stop>
+              </radialGradient>
+            </defs>
+            <g transform="matrix(1, 0, 0, 1, 0, 0.269827)">
+              <line style="stroke-width: 2px; stroke-linecap: round; fill: none; stroke: rgb(200, 200, 200);" x1="55.65" y1="132.237" x2="55.65" y2="147.357"></line>
+              <line style="stroke-width: 2px; stroke-linecap: round; fill: none; stroke: rgb(200, 200, 200);" x1="65.287" y1="133.651" x2="65.287" y2="147.091"></line>
+              <line style="stroke-width: 2px; stroke-linecap: round; fill: none; stroke: rgb(200, 200, 200);" x1="77.401" y1="131.795" x2="77.401" y2="146.915"></line>
+              <line style="stroke-width: 2px; stroke-linecap: round; fill: none; stroke: rgb(200, 200, 200);" x1="87.569" y1="133.563" x2="87.569" y2="146.915"></line>
+              <line style="stroke-width: 2px; stroke-linecap: round; fill: none; stroke: rgb(200, 200, 200);" x1="96.499" y1="133.829" x2="96.499" y2="146.65"></line>
+              <g transform="matrix(1, 0, 0, 1, -1.069491, -0.763923)">
+                <rect x="51.033" y="110.69" width="53.04" height="23.256" style="stroke: rgb(0, 0, 0); vector-effect: non-scaling-stroke; fill: rgba(82, 180, 49, 0.66);"></rect>
+                <g transform="matrix(0.62624, 0.021869, 0.021869, -0.62624, 15.6054, 205.660828)" style="">
+                  <path style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" d="M 126.564 126.466 C 127.81 125.869 129.621 122.583 128.694 120.978 C 127.767 119.373 125.45 119.372 124.523 120.978 C 123.842 122.157 125.005 125.863 126.206 126.504"></path>
+                  <line style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" x1="126.42" y1="126.103" x2="126.235" y2="133.681"></line>
+                  <circle style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" cx="126.167" cy="135.028" r="1.259"></circle>
+                </g>
+                <g transform="matrix(0.62624, 0.021869, 0.021869, -0.62624, -3.451744, 206.020294)" style="">
+                  <path style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" d="M 126.564 126.466 C 127.81 125.869 129.621 122.583 128.694 120.978 C 127.767 119.373 125.45 119.372 124.523 120.978 C 123.842 122.157 125.005 125.863 126.206 126.504"></path>
+                  <line style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" x1="126.42" y1="126.103" x2="126.235" y2="133.681"></line>
+                  <circle style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" cx="126.167" cy="135.028" r="1.259"></circle>
+                </g>
+                <g transform="matrix(0.890533, 0, 0, 0.890533, -46.515045, 15.501225)" style="">
+                  <path style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" d="M 126.655 128.324 C 127.436 128.698 128.57 130.757 127.99 131.763 C 127.409 132.768 125.957 132.769 125.376 131.763 C 124.949 131.024 125.678 128.702 126.43 128.3" transform="matrix(0.999391, 0.0349, -0.0349, 0.999391, 4.628443, -4.34236)"></path>
+                  <circle style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" cx="126.167" cy="135.028" r="0.789" transform="matrix(0.999391, 0.0349, 0.0349, -0.999391, -8.816491, 247.268634)"></circle>
+                  <path style="fill: none; stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" d="M 121.95 117.579 L 121.9 121.712 L 126.679 123.798 L 126.629 128.548"></path>
+                </g>
+                <g transform="matrix(1, 0, 0, 1, -0.152784, -0.305569)">
+                  <path style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" d="M 88.691 133.765 C 89.386 133.432 90.396 131.598 89.88 130.702 C 89.362 129.807 88.069 129.806 87.552 130.702 C 87.172 131.36 87.821 133.428 88.491 133.786" transform="matrix(-0.999391, 0.0349, -0.0349, -0.999391, 182.010373, 260.639327)"></path>
+                  <circle style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" cx="126.167" cy="135.028" r="0.703" transform="matrix(-0.999391, 0.0349, -0.0349, -0.999391, 223.73009, 250.266071)"></circle>
+                  <path style="fill: none; stroke: rgb(58, 96, 25); stroke-width: 1.12292px; vector-effect: non-scaling-stroke;" d="M 88.793 130.251 L 88.748 126.571 L 93.004 124.713 L 92.96 120.483" transform="matrix(-1, 0, 0, -1, 181.751999, 250.734009)"></path>
+                </g>
+                <g transform="matrix(0.62624, 0.021869, 0.021869, -0.62624, -25.26741, 206.068115)" style="">
+                  <path style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" d="M 126.564 126.466 C 127.81 125.869 129.621 122.583 128.694 120.978 C 127.767 119.373 125.45 119.372 124.523 120.978 C 123.842 122.157 125.005 125.863 126.206 126.504"></path>
+                  <line style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" x1="126.42" y1="126.103" x2="126.235" y2="133.681"></line>
+                  <circle style="fill: rgb(217, 221, 219); stroke: rgb(58, 96, 25); stroke-width: 1.59586px; vector-effect: non-scaling-stroke;" cx="126.167" cy="135.028" r="1.259"></circle>
+                </g>
+              </g>
+            </g>
+            <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="16.636" y="17.109">энкодер</text>
+            <rect style="fill: rgb(203, 240, 143); stroke-width: 3px; stroke: rgb(88, 85, 75);" x="190" y="33.959" width="180" height="120" rx="3" ry="3" id="lcd"></rect>
+            <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="190.548" y="20.798">LCD</text>
+            <g transform-origin="77 73" transform="matrix(0.999999, 0, 0, 0.999999, 0.000041, 0.000206)" id="encoder">
+              <g transform="matrix(1, 0, 0.000001, 0.989012, -0.407998, -16.634939)">
+                <path style="stroke: rgb(0, 0, 0); fill: url(#gradient-10);" transform="matrix(0.430767, 0, 0, 0.435553, -160.723328, -45.253071)" d="M 548.60465399 211.683 L 557.76534601 211.683 L 562.163755299 208.573152069 A 104.85 104.85 0 0 1 571.549680557 209.808832571 L 574.993329812 213.951107096 L 583.841878821 216.322068657 L 588.895303819 214.456578317 A 104.85 104.85 0 0 1 597.641593782 218.07941024 L 599.895803997 222.971822194 L 607.829196003 227.552168204 L 613.193254149 227.058165539 A 104.85 104.85 0 0 1 620.703863609 232.821258874 L 621.615014083 238.130398469 L 628.092601531 244.607985917 L 633.401741126 245.519136391 A 104.85 104.85 0 0 1 639.164834461 253.029745851 L 638.670831796 258.393803997 L 643.251177806 266.327196003 L 648.14358976 268.581406218 A 104.85 104.85 0 0 1 651.766421683 277.327696181 L 649.900931343 282.381121179 L 652.271892904 291.229670188 L 656.414167429 294.673319443 A 104.85 104.85 0 0 1 657.649847931 304.059244701 L 654.54 308.45765399 L 654.54 317.61834601 L 657.649847931 322.016755299 A 104.85 104.85 0 0 1 656.414167429 331.402680557 L 652.271892904 334.846329812 L 649.900931343 343.694878821 L 651.766421683 348.748303819 A 104.85 104.85 0 0 1 648.14358976 357.494593782 L 643.251177806 359.748803997 L 638.670831796 367.682196003 L 639.164834461 373.046254149 A 104.85 104.85 0 0 1 633.401741126 380.556863609 L 628.092601531 381.468014083 L 621.615014083 387.945601531 L 620.703863609 393.254741126 A 104.85 104.85 0 0 1 613.193254149 399.017834461 L 607.829196003 398.523831796 L 599.895803997 403.104177806 L 597.641593782 407.99658976 A 104.85 104.85 0 0 1 588.895303819 411.619421683 L 583.841878821 409.753931343 L 574.993329812 412.124892904 L 571.549680557 416.267167429 A 104.85 104.85 0 0 1 562.163755299 417.502847931 L 557.76534601 414.393 L 548.60465399 414.393 L 544.206244701 417.502847931 A 104.85 104.85 0 0 1 534.820319443 416.267167429 L 531.376670188 412.124892904 L 522.528121179 409.753931343 L 517.474696181 411.619421683 A 104.85 104.85 0 0 1 508.728406218 407.99658976 L 506.474196003 403.104177806 L 498.540803997 398.523831796 L 493.176745851 399.017834461 A 104.85 104.85 0 0 1 485.666136391 393.254741126 L 484.754985917 387.945601531 L 478.277398469 381.468014083 L 472.968258874 380.556863609 A 104.85 104.85 0 0 1 467.205165539 373.046254149 L 467.699168204 367.682196003 L 463.118822194 359.748803997 L 458.22641024 357.494593782 A 104.85 104.85 0 0 1 454.603578317 348.748303819 L 456.469068657 343.694878821 L 454.098107096 334.846329812 L 449.955832571 331.402680557 A 104.85 104.85 0 0 1 448.720152069 322.016755299 L 451.83 317.61834601 L 451.83 308.45765399 L 448.720152069 304.059244701 A 104.85 104.85 0 0 1 449.955832571 294.673319443 L 454.098107096 291.229670188 L 456.469068657 282.381121179 L 454.603578317 277.327696181 A 104.85 104.85 0 0 1 458.22641024 268.581406218 L 463.118822194 266.327196003 L 467.699168204 258.393803997 L 467.205165539 253.029745851 A 104.85 104.85 0 0 1 472.968258874 245.519136391 L 478.277398469 244.607985917 L 484.754985917 238.130398469 L 485.666136391 232.821258874 A 104.85 104.85 0 0 1 493.176745851 227.058165539 L 498.540803997 227.552168204 L 506.474196003 222.971822194 L 508.728406218 218.07941024 A 104.85 104.85 0 0 1 517.474696181 214.456578317 L 522.528121179 216.322068657 L 531.376670188 213.951107096 L 534.820319443 209.808832571 A 104.85 104.85 0 0 1 544.206244701 208.573152069 Z M 553.185 313.038 A 0 0 0 0 0 553.185 313.038 A 0 0 0 0 0 553.185 313.038" bx:shape="cog 553.185 313.038 0 104.85 101.355 0.31 24 1@c59c0b7b"></path>
+                <circle style="fill: none; vector-effect: non-scaling-stroke; stroke: rgb(135, 96, 17);" cx="77.759" cy="90.749" r="32.317"></circle>
+              </g>
+              <line style="fill: none; stroke: rgb(188, 183, 171);" x1="77.678" y1="73.323" x2="93.689" y2="32.659"></line>
+            </g>
+          </svg>
+    </div>
+    <!--  -->
+    <div class="bcontent">
     <button id="rotate-val">вращать</button>
     <button id="stop-rotate-val">stop</button>
+
+    </div>
+    </section>   
+
+    
     <script type="text/python">
     from browser import document, window, html, bind
     from typing import Generator, Coroutine, Any
