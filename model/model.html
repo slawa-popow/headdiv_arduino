@@ -20,15 +20,80 @@
     </style>
 
     <body onload="brython(1)"> 
-    
+    <div class="svg-content">
+        <svg width="450" height="350" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient gradientUnits="userSpaceOnUse" x1="171.645" y1="201.89" x2="171.645" y2="210.213" id="gradient-0" gradientTransform="matrix(0.510622, 0, 0, 1.081309, 128.372154, -157.130177)">
+                <stop offset="0" style="stop-color: rgb(214, 214, 214);"></stop>
+                <stop offset="0.416" style="stop-color: rgb(168, 168, 168);"></stop>
+                <stop offset="0.518" style="stop-color: rgb(166, 166, 166);"></stop>
+                <stop offset="1" style="stop-color: rgb(214, 214, 214);"></stop>
+              </linearGradient>
+            </defs>
+            <g id="servo">
+            <rect x="132.3" y="41.918" width="81.218" height="48" style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(122, 122, 122);"></rect>
+            <rect x="132.645" y="42.175" width="6" height="48" style="fill: rgb(240, 240, 240); stroke: rgba(0, 0, 0, 0.17);"></rect>
+            <rect x="207.123" y="42.175" width="6" height="47.304" style="fill: rgb(240, 240, 240); stroke: rgba(0, 0, 0, 0.17);"></rect>
+            <rect x="213.517" y="61.175" width="5" height="9" style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: url(#gradient-0);"></rect>
+            <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="139.042" y1="80.641" x2="206.822" y2="80.641"></line>
+            <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="138.744" y1="74.099" x2="206.524" y2="74.099"></line>
+            <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="138.596" y1="66.814" x2="206.376" y2="66.814"></line>
+            <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="138.744" y1="59.528" x2="206.524" y2="59.528"></line>
+            <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="138.744" y1="52.54" x2="206.524" y2="52.54"></line>
+            <rect style="fill: rgb(216, 216, 216); stroke: rgb(197, 188, 188);" x="31.483" y="36.745" width="100.666" height="90.741" rx="5" ry="5"></rect>
+            <path id="val" transform-origin="82.2 81.1" style="paint-order: fill; stroke: rgb(80, 75, 75); fill: rgb(117, 147, 189);" d="M 82.168 70.275 C 90.464 70.275 95.65 79.257 91.501 86.442 C 87.353 93.627 76.982 93.627 72.834 86.442 C 69.826 81.233 71.665 74.57 76.918 71.641 L 78.068 76.269 L 83.295 74.868 L 82.168 70.275 Z"  ></path>
+            <circle id="limb" style="fill: none; stroke-width: 8px; stroke: rgb(138, 132, 132);" cx="82" cy="81.5" r="19"></circle>
+            <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.816774, 0, 0, 0.806308, -87.585098, -112.05706)">редуктор</text>
+            <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.848315, 0, 0, 0.813387, 49.176811, -111.468437)">мотор</text>
+            <rect style="stroke: rgb(0, 0, 0); fill: none;" x="39.326" y="43.84" width="84.525" height="75.133" rx="5" ry="5"></rect>
+         </g> 
+        </svg>
+    </div>
         
-
+    <button id="rotate-val">вращать</button>
+    <button id="stop-rotate-val">stop</button>
     <script type="text/python">
     from browser import document, window, html, bind
     from typing import Generator, Coroutine, Any
+    v = document["val"]
+    limb = document["limb"]
     
+    step = 0
+    
+    glob_raf = None
+    
+    def rotate_val():
+        def animate(t):
+            
+            global glob_raf, step, v
+            glob_raf = window.requestAnimationFrame(animate)
+            v.attrs["transform"] = f"rotate({step})"
+            step += 0.5
+            if step == 359:
+                step = 0
+        animate(1)
+
+    def get_center(svg_id) -> tuple:
+        """ Принимает svg объект. Возвращает
+            координаты x, y центра объектa.
+        """
+        bb = svg_id.getBBox()
+        return (int(bb.x + bb.width / 2), int(bb.y + bb.height / 2))
+
+    print(get_center(document["val"]))
+
+    @bind(document["rotate-val"], "click")
+    def start_rotate(e):
+        rotate_val()
+        limb.style["stroke"] = "rgba(31, 143, 9, 0.753)"
+
+    @bind(document["stop-rotate-val"], "click")
+    def stop_rotate(e):
+        window.cancelAnimationFrame(glob_raf) 
+        limb.style["stroke"] = "rgb(138, 132, 132)"
+        
 
     </script>
-        
+      
     </body>
     </html>                  
