@@ -238,7 +238,7 @@
             </g>
             <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="16.636" y="17.109">энкодер</text>
            <g id="lcd">
-            <rect  style="fill: rgb(203, 240, 143); stroke-width: 3px; stroke: rgb(88, 85, 75);" x="190" y="33" width="180" height="125" rx="3" ry="3" ></rect>
+            <rect  style="fill: rgb(158, 182, 121); stroke-width: 3px; stroke: rgb(88, 85, 75);" x="190" y="33" width="180" height="125" rx="3" ry="3" ></rect>
             </g>
             <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12px; white-space: pre;" x="190.548" y="20.798">LCD</text>
             <g id="encoder" transform-origin="77 73" transform="matrix(0.999999, 0, 0, 0.999999, 0.000041, 0.000206)" >
@@ -275,7 +275,7 @@
     #                       ["limb"] - меняет цвет на зеленый когда мотор работает. На рисунке - похож на сальник вокруг вала
     # id енкодера:          ["encoder"] - колесо енкодера со всеми графическими дополнениями. Ручка, которую надо крутить для настройки.
     #                       ["encoder-svg"] - контур path фигуры колеса енкодера. Использую для перекрашивая контура при наведении мышкой
-    # id lcd дисплея:       ["lcd"] - прямоугольник похожий на дисплей. 
+    # id lcd дисплея:       ["lcd"] - прямоугольник похожий на дисплей. Группа <g>
     #                               xk, yk - координаты строк. где k номер строки:
     #                                   (x1=195, y1=50), (x2=195, y2=64), (x3=195, y2=78), (x4=195, y4=92),
     #                                   (x5=195, y5=106), (x6=195, y6=120), (x7=195, y7=134), (x8=195, y8=148)
@@ -299,16 +299,13 @@
            дисплейчик без страданий можно было юзать.'''
 
         
-        def __init__(self, id_svg: str, size_char: int, num_chars: int, line_height=2) -> None:
+        def __init__(self, id_svg: str, size_char: int, line_height=2) -> None:
 
-                # объект svg дисплея
+                # объект svg <g> дисплея
             self._id_lcd = document[id_svg]
 
                 # размер шрифта (высота символа) в пикселях. т-е число int это размер в пикселях.
             self._size_char = size_char
-
-                # число символов в строке
-            self._num_chars = num_chars
 
                 # межстрочный интервал px
             self._line_height = line_height
@@ -397,24 +394,51 @@
 
 
 
-
         def __get_coords_first_line(self) -> tuple:
             """Возвращает координаты первой строки с 
                учетом высоты символа  и межстрочного интевала"""
 
             return (self._x+5, self._y+self._size_char+self._line_height)
 
+        # ---------------------------------------------------------------------------------------------------------
 
+    class Lsd(Display):
+        """Дисплей"""
+
+        def __init__(self, id_svg: str, size_char: int) -> None:
+            super().__init__(id_svg, size_char)
             
             
+        @property
+        def id(self):
+            """объект svg дисплея. Возвращает объект прямоугольника в группе <g id="lcd">"""
+            return self._id_lcd.firstElementChild
+
+        @id.setter
+        def id(self, value: Any):
+            """Не изменяемый"""
+            pass
 
 
+        def on_power(self) -> None:
+            """Включить питание. Цвет дисплея светло зелено-серый"""
+
+            self.id.style["fill"] = f"rgb(203, 240, 143)"
+
+
+
+        def off_power(self) -> None:
+            """Отключить питание. Стереть всё."""
+
+            self.id.style["fill"] = f"rgb(158, 182, 121)"
+            self.clean()
+            
         
 
 
 
-    d = Display("lcd", 12, 23)
-    print(d.__dict__)
+    d = Lsd("lcd", 12)
+    #print(d.__dict__)
     d.write("first string", 1)
     d.write("sldfjs fldgkj  d", 8)
     d.write("sdf 333333333 333", 2)
@@ -423,11 +447,12 @@
     
     @bind(document["power-on"], "click")
     def start_rotate(e):
+        d.on_power()
         d.write("u"*20 + 'fkljrgjfdg', 1) 
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
-        d.clean()
+        d.off_power()
    
     </script>
       
