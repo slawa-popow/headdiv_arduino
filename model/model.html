@@ -273,7 +273,7 @@
     #
     # id мотор-редуктора:   ["val"] - вал (с синим оттенком на редукторе) со шнопочным пазом
     #                       ["limb"] - меняет цвет на зеленый когда мотор работает. На рисунке - похож на сальник вокруг вала
-    # id енкодера:          ["encoder"] - колесо енкодера со всеми графическими дополнениями. Ручка, которую надо крутить для настройки.
+    # id енкодера:          ["encoder"] - <g> колесо енкодера со всеми графическими дополнениями. Ручка, которую надо крутить для настройки.
     #                       ["encoder-svg"] - контур path фигуры колеса енкодера. Использую для перекрашивая контура при наведении мышкой
     # id lcd дисплея:       ["lcd"] - прямоугольник похожий на дисплей. Группа <g>
     #                               xk, yk - координаты строк. где k номер строки:
@@ -290,6 +290,35 @@
     #
     #
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    class Interface:
+        """Интерфейсный класс для связи обЪектов"""
+
+        _obj = None
+
+        def __new__(cls, *args, **kwargs):
+            """Синглтон. Для того чтобы можно было
+               взять обЪект класса по имени класса"""
+
+            if cls._obj is None:
+                cls._obj = super().__new__(cls)
+            return cls._obj
+
+
+
+        @classmethod
+        def getobj(cls):
+            return cls._obj
+
+
+        def __init__(self, *args, **kwargs) -> None:
+            if args:
+                for name, obj in args:
+                    super().__setattr__(name, obj)
+
+
+
 
 
     class Display:
@@ -402,7 +431,7 @@
 
         # ---------------------------------------------------------------------------------------------------------
 
-    class Lsd(Display):
+    class Lcd(Display):
         """Дисплей"""
 
         def __init__(self, id_svg: str, size_char: int) -> None:
@@ -432,23 +461,154 @@
 
             self.id.style["fill"] = f"rgb(158, 182, 121)"
             self.clean()
+
+
+
+        # --------------------------------------------------------------------------------------------------------------
+
+    class Encoder:
+        """Ручной енкодер"""
+
+        def __init__(self, id_encoder: str, id_encoder_path: str) -> None:
+                # объект группы енкодера
+            self._id = document[id_encoder]
+
+                # объект <path> нужна его обводка для выделения при наведении мыши
+            self._path_id = document[id_encoder_path]
+
+                # на сколько градусов повернуть за раз енкодер 
+            self._deg_step = 10
+                
+                # сумма поворотов
+            self._total_deg = 0
+
+                # Имя браузера
+            self.navigator: list = window.navigator.userAgent.split("/")[2].split()[-1]
+
+                # обработчики событий прокрутки колесика мыши над енкодером для браузеров Firefox и группы v8 
+            self._id.bind("mousewheel", self.wheel)
+                # Этот для Firefox
+            self._id.bind("DOMMouseScroll", self.wheel) 
+
+                # Обработчик события если убрать указатель мыши из области енкодера
+            self._id.bind("mouseover", self.select_encoder)
+
+                # Обработчик события по наведении указателя мыши на енкодер
+            self._id.bind("mouseout", self.no_select_encoder)
+
+                # Обработчик события при нажатия на колесико мыши на енкодер.
+            self._id.bind("mousedown", self.click_wheel)
+
+
+        @property
+        def deg_step(self) -> int:
+            """Вернуть шаг поворота"""
+
+            return self._deg_step
+
+
+        @deg_step.setter
+        def deg_step(self, value: int) -> None:
+            self._deg_step = value
+
+
+        @property
+        def total_deg(self) -> int:
+            """Геттер вернет общее кол-во поворотов енкодера."""
+
+            return self._total_deg
+
+
+        @total_deg.setter
+        def total_deg(self, value: int) -> None:
+            self._total_deg = value
+        
+
+        def wheel(self, e) -> None:
+            """wheelDelta - группа браузеров v8, detail - мозилла.
+               если событие пришло от браузеров группы v8 то значение
+               вернувшее wheelDelta изменяем на 1 поделив его на 120. 
+               detail есть в мозилле и он вернет или -1 или 1. В зависимости 
+               от браузера в любом случае значение объекта события нужно сделать равным 1
+               и умножить на наш шаг-градусы разовой прокрутки енкодера."""
+
+            delta = None
+            if hasattr(e, "wheelDelta"):
+                delta = e.wheelDelta / 120
+                self.total_deg += delta * (-self.deg_step)
+    
+            elif hasattr(e, "detail"):
+                delta = e.detail / 3
+                self.total_deg += delta * (-self.deg_step)
+                
+            if delta:
+                e.preventDefault()
+                if abs(self.total_deg) >= 360:
+                    self.total_deg = 0
+            self._id.attrs["transform"] = f"rotate({self.total_deg})"  
+            self.round_wheel()
             
+            
+
+        def select_encoder(self, e) -> None:
+            """Сменить цвет обводки на красный при наведении указателя
+               мыши на енкодер."""
+
+            self._path_id.style = "stroke: red; stroke-width: 4px; fill: url(#gradient-10)"
+
+
+
+        def no_select_encoder(self, e) -> None:
+            """Вернуть черный оттенок если убрать указатель мыши
+               из области фигуры енкодера."""
+
+            self._path_id.style = "stroke: rgb(0, 0, 0); fill: url(#gradient-10)"
+
+
+
+        def click_wheel(self, e) -> None:
+            """При нажатии колесика мыши меняется масштаб фигуры
+                енкодера, и через короткое время вызывается встроенная
+                ф-ция, которая изменяет масштаб в номральное значение."""
+
+            def reset():
+                self._id.attrs["transform"] = f"scale(1), rotate({self.total_deg})"
+
+            if e.which == 2:
+                self._id.attrs["transform"] = f"scale(0.98), rotate({self.total_deg})"
+                timer.set_timeout(reset, 150)
+
+                self.button_wheel()  
+                
+                
+        def button_wheel(self) -> None:
+            """Вызов по нажатии колеса мыши."""
+            Interface.getobj().lcd.write(f"Ты нажал на колесико мышки....", 6)
+            
+
+
+
+        def round_wheel(self) -> None:
+            """Вызов когда крутят енкодер"""
+            
+            Interface.getobj().lcd.write(f"             {self.total_deg}", 3)
+
+
+
+        # -----------------------------------------------------------------------------------------------------------
+
         
 
 
-
-    d = Lsd("lcd", 12)
-    #print(d.__dict__)
-    d.write("first string", 1)
-    d.write("sldfjs fldgkj  d", 8)
-    d.write("sdf 333333333 333", 2)
-    
-    
+    d = Lcd("lcd", 12)
+    enc = Encoder("encoder", "encoder-svg")
+    interface = Interface(("lcd", d), ("encoder", enc))
+    d.on_power()
     
     @bind(document["power-on"], "click")
     def start_rotate(e):
         d.on_power()
-        d.write("u"*20 + 'fkljrgjfdg', 1) 
+        
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
