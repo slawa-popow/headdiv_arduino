@@ -428,7 +428,7 @@
                             размер шрифта - size_char"""
 
             super().__init__(id_svg, size_char)
-            
+            self.on_power()
 
             
         @property
@@ -479,6 +479,9 @@
                 # сумма поворотов
             self._total_deg = 0
 
+                # направление вращения: 1 туда, -1 сюда
+            self.around_direction: int = 1
+
                 # Имя браузера (не понадобилось. Оставил на память для что-как-куда)
             self.navigator: list = window.navigator.userAgent.split("/")[2].split()[-1]
 
@@ -487,10 +490,10 @@
                 # Этот для Firefox
             self._id.bind("DOMMouseScroll", self.wheel) 
 
-                # Обработчик события если убрать указатель мыши из области енкодера
+                # Обработчик события по наведении указателя мыши на енкодер
             self._id.bind("mouseover", self.select_encoder)
 
-                # Обработчик события по наведении указателя мыши на енкодер
+                # Обработчик события если убрать указатель мыши из области енкодера
             self._id.bind("mouseout", self.no_select_encoder)
 
                 # Обработчик события при нажатия на колесико мыши на енкодер.
@@ -540,7 +543,10 @@
                 self.total_deg += delta * (-self.deg_step)
                 
             if delta:
+                    # сохранить знак направления вращения, запретить прокрутку над svg объектом
+                self.around_direction = 1 if delta > 0 else -1
                 e.preventDefault()
+
                 if abs(self.total_deg) >= 360:
                     self.total_deg = 0
             self._id.attrs["transform"] = f"rotate({self.total_deg})"  
@@ -551,7 +557,7 @@
         def select_encoder(self, e) -> None:
             """Сменить цвет обводки на красный при наведении указателя
                мыши на енкодер."""
-
+            document.querySelector("body").style["cursor"] = "move"
             self._path_id.style = "stroke: red; stroke-width: 4px; fill: url(#gradient-10)"
 
 
@@ -559,7 +565,7 @@
         def no_select_encoder(self, e) -> None:
             """Вернуть черный оттенок если убрать указатель мыши
                из области фигуры енкодера."""
-
+            document.querySelector("body").style["cursor"] = "default"
             self._path_id.style = "stroke: rgb(0, 0, 0); fill: url(#gradient-10)"
 
 
@@ -584,10 +590,51 @@
     class Motor(Component):
         """Мотор-редуктор"""
 
-        def __init__(self) -> None:
+        def __init__(self, id_val: str, id_limb: str) -> None:
             super().__init__()
 
+                # объект вала
+            self._id = document[id_val]
 
+                # оъект круглой толстой штуки вогруг синего вала
+            self._limb = document[id_limb]
+
+                # на сколько градусов провернут вал
+            self._total_d: int = 0
+
+               
+
+
+        @property
+        def id(self):
+            return self._id
+
+        @id.setter
+        def id(self, value) -> None:
+            pass
+
+
+        @property
+        def limb(self):
+            return self._limb
+
+        @limb.setter
+        def limb(self, value) -> None:
+            pass
+
+        
+        @property
+        def degstep(self) -> int:
+            return self._total_d
+
+        @degstep.setter
+        def degstep(self, value) -> None:
+            
+            self._total_d += float(value)
+            if abs(self._total_d) >= 360:
+                self._total_d = 0
+            print(value, self._total_d)
+            self.id.attrs["transform"] = f"rotate({self._total_d})"
 
     # -------------------------------------------------------------------------------------------------------------
     
@@ -601,19 +648,21 @@
             
         return wrapper            
 
-    # ------------------------------------------------------------------------     
+         
 
 
     class ATMega:
         """Ардуина. Чип: 8-bit Atmel ATmega2560.
-           Модель напоминает паттерн 'Посредник', 
-           только без интерфейса. """
+           Модель классов напоминает паттерн 'Посредник', 
+           только без интерфейса. Этот в роли посредника."""
 
         def __init__(self, lcd: Lcd, encoder: Encoder, motor: Motor):
             self.lcd = lcd
             self.encoder = encoder
             self.motor = motor
 
+                # передаточное число
+            self.delta_reductor: float = 5.0
 
 
 
@@ -657,28 +706,27 @@
 
 
         def round_wheel(self) -> None:
-            """Вызов когда крутят енкодер"""
+            """Вызов когда крутят енкодер + крутим мотор с передаточным числом"""
             
             self.lcd.write(f"___________{self.encoder.total_deg}", 3)
+            self.motor.degstep = (self.encoder.deg_step * self.encoder.around_direction) / self.delta_reductor
 
         
     # ------------------------------- main --------------------------------------------------------------------
 
     lcd_display = Lcd("lcd", 12)
     man_encoder = Encoder("encoder", "encoder-svg")
-    motor = Motor()
+    motor = Motor("val", "limb")
     controller = ATMega(lcd_display, man_encoder, motor)
-   
-    lcd_display.on_power()
     
     @bind(document["power-on"], "click")
     def start_rotate(e):
-        lcd_display.on_power()
-        
+        controller.lcd.on_power()
+        controller.delta_reductor = 1
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
-        lcd_display.off_power()
+        controller.delta_reductor = 2.5
    
     </script>
       
