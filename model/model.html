@@ -13,7 +13,6 @@
         type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/brython@3.10.6/brython_stdlib.js"
       ></script>
-    </head>
 
     <style>
     html {
@@ -144,8 +143,8 @@
         margin: 0 10px;
     } 
     
-
     </style>
+    </head>
 
     <body onload="brython(1)"> 
     <header>
@@ -265,7 +264,7 @@
     <script type="text/python">
 
     from browser import document, window, html, bind, timer
-    from typing import Generator, Coroutine, Any
+    from typing import Any, Callable
 
 
 
@@ -292,36 +291,25 @@
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-    class Interface:
-        """Интерфейсный класс для связи обЪектов"""
+    class Component:
+        """Базовый класс всех компонентов.
+           Задает во всех объектaх модулей объект чипа ATMega. [mega = None]"""
 
-        _obj = None
+        def __init__(self) -> None:
+            self._mega = None
 
-        def __new__(cls, *args, **kwargs):
-            """Синглтон. Для того чтобы можно было
-               взять обЪект класса по имени класса"""
+        @property
+        def mega(self):
+            return self._mega
 
-            if cls._obj is None:
-                cls._obj = super().__new__(cls)
-            return cls._obj
-
-
-
-        @classmethod
-        def getobj(cls):
-            return cls._obj
-
-
-        def __init__(self, *args, **kwargs) -> None:
-            if args:
-                for name, obj in args:
-                    super().__setattr__(name, obj)
+        @mega.setter
+        def mega(self, obj) -> None:
+            self._mega = obj
+      
 
 
 
-
-
-    class Display:
+    class Display(Component):
         '''Родительский класс дисплея. Делает закулисную грязную работу. Будет по id svg объекта
            вычислять атрибуты: число строк, длинна строки, координаты начала строки
            размеры дисплея... короче чтобы не париться, а нарисованный/перемещенный 
@@ -329,6 +317,7 @@
 
         
         def __init__(self, id_svg: str, size_char: int, line_height=2) -> None:
+            super().__init__()
 
                 # объект svg <g> дисплея
             self._id_lcd = document[id_svg]
@@ -355,10 +344,10 @@
                 # словарь [№строки : координата Y]
             self._lines_coords: dict = self.__get_lines_coords()
                 
-                # словарь обЪектов строк. Добавление в write()
+                # словарь обЪектов строк. Строки добавляются в write()
             self._svg_lines: dict = dict()
 
-                # макс. длинна строки (символов). 4 - от балды взято
+                # макс. длинна строки (символов). 4 - от балды взято (на самом деле с 4 расчет более-менее правильный)
             self._max_len: int = (self._width + self._first_line_coord[0]) // (self._size_char + 4)
 
 
@@ -435,8 +424,12 @@
         """Дисплей"""
 
         def __init__(self, id_svg: str, size_char: int) -> None:
+            """2 параметра: айди грфического объекта группы <g> - id_svg; 
+                            размер шрифта - size_char"""
+
             super().__init__(id_svg, size_char)
             
+
             
         @property
         def id(self):
@@ -466,14 +459,18 @@
 
         # --------------------------------------------------------------------------------------------------------------
 
-    class Encoder:
+    class Encoder(Component):
         """Ручной енкодер"""
 
         def __init__(self, id_encoder: str, id_encoder_path: str) -> None:
+            """id_encoder - айди группы <g> svg объекта; id_encoder_path - айди обводки колесика (paht)"""
+
+            super().__init__()
+
                 # объект группы енкодера
             self._id = document[id_encoder]
 
-                # объект <path> нужна его обводка для выделения при наведении мыши
+                # <path>. Hужна его обводка для выделения при наведении мыши
             self._path_id = document[id_encoder_path]
 
                 # на сколько градусов повернуть за раз енкодер 
@@ -482,7 +479,7 @@
                 # сумма поворотов
             self._total_deg = 0
 
-                # Имя браузера
+                # Имя браузера (не понадобилось. Оставил на память для что-как-куда)
             self.navigator: list = window.navigator.userAgent.split("/")[2].split()[-1]
 
                 # обработчики событий прокрутки колесика мыши над енкодером для браузеров Firefox и группы v8 
@@ -527,10 +524,11 @@
         def wheel(self, e) -> None:
             """wheelDelta - группа браузеров v8, detail - мозилла.
                если событие пришло от браузеров группы v8 то значение
-               вернувшее wheelDelta изменяем на 1 поделив его на 120. 
+               вернувшее wheelDelta (120) изменяем на 1 поделив его на 120. 
                detail есть в мозилле и он вернет или -1 или 1. В зависимости 
                от браузера в любом случае значение объекта события нужно сделать равным 1
-               и умножить на наш шаг-градусы разовой прокрутки енкодера."""
+               и умножить на наш шаг-градусы разовой прокрутки енкодера. Код честно спер с какого-то
+               сайта про javascript."""
 
             delta = None
             if hasattr(e, "wheelDelta"):
@@ -546,7 +544,7 @@
                 if abs(self.total_deg) >= 360:
                     self.total_deg = 0
             self._id.attrs["transform"] = f"rotate({self.total_deg})"  
-            self.round_wheel()
+            self.mega.round_wheel()
             
             
 
@@ -569,7 +567,7 @@
         def click_wheel(self, e) -> None:
             """При нажатии колесика мыши меняется масштаб фигуры
                 енкодера, и через короткое время вызывается встроенная
-                ф-ция, которая изменяет масштаб в номральное значение."""
+                ф-ция, которая изменяет масштаб в нормальное значение."""
 
             def reset():
                 self._id.attrs["transform"] = f"scale(1), rotate({self.total_deg})"
@@ -578,41 +576,109 @@
                 self._id.attrs["transform"] = f"scale(0.98), rotate({self.total_deg})"
                 timer.set_timeout(reset, 150)
 
-                self.button_wheel()  
+                self.mega.button_wheel()  
                 
-                
+
+    # -----------------------------------------------------------------------------------------------------------
+
+    class Motor(Component):
+        """Мотор-редуктор"""
+
+        def __init__(self) -> None:
+            super().__init__()
+
+
+
+    # -------------------------------------------------------------------------------------------------------------
+    
+    def inject(method_setter: Callable) -> Callable:
+        """Декоратор для сеттеров. Внедряет объект ATMega в объект каждой компоненты
+            до присваивания соотв. атрибута экземпляра ATMega. """
+
+        def wrapper(self, obj) -> None:
+            obj.mega = self
+            method_setter(self, obj)
+            
+        return wrapper            
+
+    # ------------------------------------------------------------------------     
+
+
+    class ATMega:
+        """Ардуина. Чип: 8-bit Atmel ATmega2560.
+           Модель напоминает паттерн 'Посредник', 
+           только без интерфейса. """
+
+        def __init__(self, lcd: Lcd, encoder: Encoder, motor: Motor):
+            self.lcd = lcd
+            self.encoder = encoder
+            self.motor = motor
+
+
+
+
+        @property
+        def motor(self) -> Motor:
+            return self._motor
+
+        @motor.setter   
+        @inject
+        def motor(self, obj) -> None:
+            self._motor = obj
+           
+            
+
+        @property
+        def encoder(self) -> Encoder:
+            return self._encoder
+
+        @encoder.setter
+        @inject
+        def encoder(self, obj) -> None:
+            self._encoder = obj
+
+
+
+        @property
+        def lcd(self) -> Lcd:
+            return self._lcd
+
+        @lcd.setter
+        @inject
+        def lcd(self, obj) -> None:
+            self._lcd = obj
+
+
         def button_wheel(self) -> None:
             """Вызов по нажатии колеса мыши."""
-            Interface.getobj().lcd.write(f"Ты нажал на колесико мышки....", 6)
-            
+
+            self.lcd.write(f"Ты нажал на колесико мышки....", 6)
 
 
 
         def round_wheel(self) -> None:
             """Вызов когда крутят енкодер"""
             
-            Interface.getobj().lcd.write(f"             {self.total_deg}", 3)
-
-
-
-        # -----------------------------------------------------------------------------------------------------------
+            self.lcd.write(f"___________{self.encoder.total_deg}", 3)
 
         
+    # ------------------------------- main --------------------------------------------------------------------
 
-
-    d = Lcd("lcd", 12)
-    enc = Encoder("encoder", "encoder-svg")
-    interface = Interface(("lcd", d), ("encoder", enc))
-    d.on_power()
+    lcd_display = Lcd("lcd", 12)
+    man_encoder = Encoder("encoder", "encoder-svg")
+    motor = Motor()
+    controller = ATMega(lcd_display, man_encoder, motor)
+   
+    lcd_display.on_power()
     
     @bind(document["power-on"], "click")
     def start_rotate(e):
-        d.on_power()
+        lcd_display.on_power()
         
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
-        d.off_power()
+        lcd_display.off_power()
    
     </script>
       
