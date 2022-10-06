@@ -550,7 +550,8 @@
                 if abs(self.total_deg) >= 360:
                     self.total_deg = 0
             self._id.attrs["transform"] = f"rotate({self.total_deg})"  
-            self.mega.round_wheel()
+
+            self.mega.wheel_method() 
             
             
 
@@ -581,8 +582,8 @@
             if e.which == 2:
                 self._id.attrs["transform"] = f"scale(0.98), rotate({self.total_deg})"
                 timer.set_timeout(reset, 150)
-
-                self.mega.button_wheel()  
+                
+                self.mega.push_wheel_method() 
                 
 
     # -----------------------------------------------------------------------------------------------------------
@@ -661,8 +662,144 @@
             self.encoder = encoder
             self.motor = motor
 
+                # хранит позицию выделенного пункта меню
+            self.nav = 1
+                
+                # состояние. начальное состояние = 'BEGIN'
+            self._state = 6
+
+                # метод вызываемый при прокрутки колеса мыши
+            self.wheel_method: Callable = self.round_wheel
+
+                # метод вызываемый при нажатии на колесо мыши
+            self.push_wheel_method: Callable = self.button_wheel
+            
                 # передаточное число
-            self.delta_reductor: float = 5.0
+            self.delta_reductor: float = 1.0
+
+
+                # константы макро состояний
+            self.enum_state: dict = {
+                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE", 5: "RUN_AUTO", 6: "BEGIN"
+            }
+                # подсостояния. пункты меню, замещающие методы на события вращения и нажатия колеса мыши 
+            self.displays: dict = { 
+                "BEGIN":{"nav":{1: ("да", self.st_mtd_yes), 2: ("настр.", self.st_mtd_settings), 3: ("нет", self.st_mtd_no)},
+                         "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"}
+                },
+                "SETTING":{"nav":{1: ("да", self.st_mtd_sett_yes),  2: ("нет", self.st_mtd_sett_no)},
+                            "text": {2: f"{'\u00A0'*6}"+"глобальные", 3: f"{'\u00A0'*7}"+"настройки"}
+
+                }
+            }
+
+        # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+        def run(self) -> None:
+            """Пуск машины состояний."""
+
+            s = self.enum_state.get(self.state)
+            if not s:
+                self.state = 6
+            dsp = self.displays[s]
+
+            # замещение метода события нажатия колесика мыши по пунктам меню
+            self.push_wheel_method = dsp["nav"][self.nav][1]
+
+            # --------------------------------> BEGIN state
+            if s == "BEGIN":
+                    # текст на табло
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                    # замещение метода события вращения колеса
+                self.wheel_method = self.st_mtd_wheel
+
+                    # вывести меню на экран
+                self.lcd.write(self.get_nav(s), 8) 
+
+            # --------------------------------> SETTING state   
+            elif s == "SETTING":
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                    # замещение метода события вращения колеса
+                self.wheel_method = self.st_mtd_wheel
+
+                    # вывести меню на экран
+                self.lcd.write(self.get_nav(s), 8) 
+
+               
+
+                # void loop()
+            window.setTimeout(self.run)
+
+
+
+        def st_mtd_yes(self) -> None:
+            self.lcd.write("выбор: да", 5)
+
+        def st_mtd_settings(self) -> None:
+            self.state = 2
+            self.lcd.clean()
+            self.nav = 1 
+
+        def st_mtd_no(self) -> None:
+            self.lcd.write("выбор: нет", 5)
+
+
+
+        def st_mtd_sett_yes(self) -> None:
+            self.state = 6
+            self.nav = 1
+            self.lcd.clean()
+
+        def st_mtd_sett_no(self) -> None:
+            self.state = 6
+            self.nav = 1
+            self.lcd.clean()
+           
+
+        def st_mtd_wheel(self) -> None:
+            """выделение пунктов в меню при вращении колеса мыши"""
+
+                # в зависимости от направления вращения колеса мыши self.encoder.around_direction
+                # то 1, то -1
+            self.nav += self.encoder.around_direction
+
+                # дисплей текущего состояния
+            curr_display = self.displays[self.enum_state[self.state]]
+                
+                # кол-во пунктов
+            len_nav = len(curr_display["nav"])
+
+                # выделение пунктов меню по кругу
+            if (self.nav < 1):
+                self.nav = len_nav
+            elif (self.nav > len_nav):
+                self.nav = 1
+
+       
+        
+        def get_nav(self, current_state: str) -> str:
+            """возвращает строку меню с помеченным пунктом"""
+
+            st_nav: dict = self.displays[current_state]["nav"] 
+            navigate_list = [st_nav[key][0] for key in st_nav]
+            
+            return f"{'\u00A0'*5}".join(list(map(lambda z: f"[{z[1]}]" if z[0]+1 == self.nav else z[1], enumerate(navigate_list))))
+            
+
+
+        # - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        
+        @property
+        def state(self) -> int:
+            return self._state
+
+        @state.setter
+        def state(self, value: int) -> None:
+            self._state = value
 
 
 
@@ -697,11 +834,12 @@
         def lcd(self, obj) -> None:
             self._lcd = obj
 
+        # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
         def button_wheel(self) -> None:
             """Вызов по нажатии колеса мыши."""
 
-            self.lcd.write(f"Ты нажал на колесико мышки....", 6)
+            self.lcd.write(f"Ты [нажал] на колесико мышки....", 8)
 
 
 
@@ -718,11 +856,11 @@
     man_encoder = Encoder("encoder", "encoder-svg")
     motor = Motor("val", "limb")
     controller = ATMega(lcd_display, man_encoder, motor)
-    
+    controller.run()
     @bind(document["power-on"], "click")
     def start_rotate(e):
         controller.lcd.on_power()
-        controller.delta_reductor = 1
+        
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
