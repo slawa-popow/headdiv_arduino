@@ -664,9 +664,14 @@
 
                 # хранит позицию выделенного пункта меню
             self.nav = 1
+
+                # хранит строки дисплея текущего состояния
+            self.map_display: list = list()
                 
                 # состояние. начальное состояние = 'BEGIN'
             self._state = 6
+
+            self._substate = 0
 
                 # метод вызываемый при прокрутки колеса мыши
             self.wheel_method: Callable = self.round_wheel
@@ -677,19 +682,24 @@
                 # передаточное число
             self.delta_reductor: float = 1.0
 
+                # скорость в режиме разметки
+            self.vauto: float = 0.5
+
 
                 # константы макро состояний
             self.enum_state: dict = {
                 None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE", 5: "RUN_AUTO", 6: "BEGIN"
             }
-                # подсостояния. пункты меню, замещающие методы на события вращения и нажатия колеса мыши 
+                # дисплеи состояний, пункты меню, замещающие ссылки методов на события вращения и нажатия колеса мыши 
             self.displays: dict = { 
                 "BEGIN":{"nav":{1: ("да", self.st_mtd_yes), 2: ("настр.", self.st_mtd_settings), 3: ("нет", self.st_mtd_no)},
+                         "field": dict(),
                          "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"}
+                         
                 },
                 "SETTING":{"nav":{1: ("да", self.st_mtd_sett_yes),  2: ("нет", self.st_mtd_sett_no)},
-                            "text": {2: f"{'\u00A0'*6}"+"глобальные", 3: f"{'\u00A0'*7}"+"настройки"}
-
+                            "field":{3: (f"передат. число:", self.set_dreductor, self.delta_reductor), 4: (f"скорость авто:", self.set_vauto, self.vauto)},
+                            "text": {1: f"{'\u00A0'*2}"+"глобальные"+f"{'\u00A0'}"+"настройки"}
                 }
             }
 
@@ -701,95 +711,164 @@
             s = self.enum_state.get(self.state)
             if not s:
                 self.state = 6
+                self.substate = 0
+
             dsp = self.displays[s]
 
-            # замещение метода события нажатия колесика мыши по пунктам меню
-            self.push_wheel_method = dsp["nav"][self.nav][1]
+                # очистка и наполнение при каждом вызове атрибута-словаря пунктами меню 
+                # (строка навигации и если есть поля ввода) текущего дисплея состояния.
+            self.map_display.clear()
+            self.map_display.extend([dsp["nav"], dsp["field"]])
+
+                # замещение метода события вращения колеса
+            self.wheel_method = self.st_mtd_wheel
+
+                # замещение метода события нажатия колесика мыши по пунктам меню
+            self.push_wheel_method = self.get_deploy_map_display()[self.nav][1]
+            
 
             # --------------------------------> BEGIN state
             if s == "BEGIN":
+                
                     # текст на табло
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
 
-                    # замещение метода события вращения колеса
-                self.wheel_method = self.st_mtd_wheel
-
+                    # получить строку навигации и полей ввода (если есть)
+                navigate, field_sett = self.get_nav(s) 
+               
                     # вывести меню на экран
-                self.lcd.write(self.get_nav(s), 8) 
+                self.lcd.write(navigate, 8) 
+
 
             # --------------------------------> SETTING state   
             elif s == "SETTING":
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
 
-                    # замещение метода события вращения колеса
-                self.wheel_method = self.st_mtd_wheel
-
+                navigate, field_sett = self.get_nav(s)
+                
                     # вывести меню на экран
-                self.lcd.write(self.get_nav(s), 8) 
-
-               
+                self.lcd.write(navigate, 8) 
+                
+                    # вывод полей ввода и значений на экран
+                for i, line in enumerate(field_sett):
+                    self.lcd.write(line, i+3)
 
                 # void loop()
             window.setTimeout(self.run)
 
 
 
+
         def st_mtd_yes(self) -> None:
+            """пункт меню ДА-главный экран. Событие по нажатии"""
+
             self.lcd.write("выбор: да", 5)
 
+
         def st_mtd_settings(self) -> None:
+            """пункт меню НАСТР.-главный экран. Событие по нажатии"""
+
             self.state = 2
             self.lcd.clean()
             self.nav = 1 
 
+
         def st_mtd_no(self) -> None:
+            """пункт меню НЕТ-главный экран. Событие по нажатии"""
+
             self.lcd.write("выбор: нет", 5)
 
 
 
+
         def st_mtd_sett_yes(self) -> None:
+            """пункт меню ДА-меню настройки. Событие по нажатии"""
+
             self.state = 6
             self.nav = 1
             self.lcd.clean()
 
+
         def st_mtd_sett_no(self) -> None:
+            """пункт меню НЕТ-меню настройки. Событие по нажатии"""
+
             self.state = 6
             self.nav = 1
             self.lcd.clean()
+
+
+
+        def set_dreductor(self) -> None:
+            """поле ввода ПЕРЕДАТОЧН. ЧИСЛО РЕДУКТОРА.
+            экран настройки. Событие по нажатии"""
+
+            self.st_mtd_settings()
+
            
+        def set_vauto(self) -> None:
+            """поле ввода СКОРОСТЬ АВТО.
+            экран настройки. Событие по нажатии"""
+
+            self.st_mtd_settings()
+
+
 
         def st_mtd_wheel(self) -> None:
             """выделение пунктов в меню при вращении колеса мыши"""
 
                 # в зависимости от направления вращения колеса мыши self.encoder.around_direction
                 # то 1, то -1
+              
             self.nav += self.encoder.around_direction
-
+            
                 # дисплей текущего состояния
-            curr_display = self.displays[self.enum_state[self.state]]
-                
-                # кол-во пунктов
-            len_nav = len(curr_display["nav"])
-
+            curr_display: dict = self.get_deploy_map_display()
+                # количество пунктов для выделения
+            len_nav = len(curr_display) 
+            
                 # выделение пунктов меню по кругу
             if (self.nav < 1):
                 self.nav = len_nav
             elif (self.nav > len_nav):
                 self.nav = 1
-
+           
+              
        
         
-        def get_nav(self, current_state: str) -> str:
-            """возвращает строку меню с помеченным пунктом"""
+        def get_nav(self, current_state: str) -> tuple:
+            """возвращает строку меню с помеченным пунктом. 
+               При каждом вызове формирует дисплей со строками. Возвращает кортеж 
+               строку меню и список строк полей ввода. Формирование экрана дисплая текущего состояния."""
+           
+                # словарь вида [{"nav":{1: ("да", self.st_mtd_sett_yes),  2: ("нет", self.st_mtd_sett_no)}]
+            st_nav: dict = self.map_display[0]
 
-            st_nav: dict = self.displays[current_state]["nav"] 
-            navigate_list = [st_nav[key][0] for key in st_nav]
-            
-            return f"{'\u00A0'*5}".join(list(map(lambda z: f"[{z[1]}]" if z[0]+1 == self.nav else z[1], enumerate(navigate_list))))
-            
+                # словарь вида [3: (f"передат. число:", self.set_dreductor, self.delta_reductor), 4: (f"скорость авто:", self.set_vauto, self.vauto)}]
+            field_nav: dict = self.map_display[1]
+             
+                # формирование строки меню с помеченным выбранным пунктом в зависимости от значения self.nav 
+            navigate = list(map(lambda z: f"\u25b6{z[1][0]}\u25c0" if z[0] == self.nav else z[1][0], st_nav.items()))
+                
+                # формирование списка полей ввода с помеченным пунктом в зависимости от self.nav Работает в паре с строкой навигации
+            field = list(map(lambda x: f"\u25b6{x[1][0]}\u25c0 {x[1][2]}" if x[0] == self.nav else f"{x[1][0]} {x[1][2]}", field_nav.items()))
+            return (f"{'\u00A0'*5}".join(navigate), field)
 
+
+        def get_deploy_map_display(self) -> dict:
+            """Может глупое название, но создает и 
+               возвращает словарь из словарей (если существуют) тек. состояния.
+               Нужно для определения счетчика выбора в меню. (чтобы знать кол-во пунктов для выбора)"""
+            
+            curr_display: dict = dict()
+
+            for upd in self.map_display:
+                if upd:
+                    curr_display.update(upd)
+
+            return curr_display
+            
 
         # - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         
@@ -800,6 +879,26 @@
         @state.setter
         def state(self, value: int) -> None:
             self._state = value
+
+
+
+        @property
+        def substate(self) -> int:
+            return self._substate
+
+        @substate.setter
+        def substate(self, value: int) -> None:
+            self._substate = value
+
+
+
+        @property
+        def nav(self) -> int:
+            return self._nav
+
+        @nav.setter
+        def nav(self, value: int) -> None:
+            self._nav = value
 
 
 
@@ -834,13 +933,11 @@
         def lcd(self, obj) -> None:
             self._lcd = obj
 
-        # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        
 
         def button_wheel(self) -> None:
             """Вызов по нажатии колеса мыши."""
-
-            self.lcd.write(f"Ты [нажал] на колесико мышки....", 8)
-
+            pass
 
 
         def round_wheel(self) -> None:
