@@ -265,6 +265,7 @@
 
     from browser import document, window, html, bind, timer
     from typing import Any, Callable
+    import time
 
 
 
@@ -665,6 +666,10 @@
                 # хранит позицию выделенного пункта меню
             self.nav = 1
 
+
+                # сохраняет ссылку на метод события нажатия колесика перед экзекуцией
+            self.stackpush = None
+
                 # хранит строки дисплея текущего состояния
             self.map_display: list = list()
                 
@@ -672,6 +677,12 @@
             self._state = 6
 
             self._substate = 0
+
+                # счетчик таймера. Для мигания выбранного поля ввода.
+            self.blink: int = 0
+                
+                # таймер
+            self.timer = time.time()
 
                 # метод вызываемый при прокрутки колеса мыши
             self.wheel_method: Callable = self.round_wheel
@@ -692,14 +703,16 @@
             }
                 # дисплеи состояний, пункты меню, замещающие ссылки методов на события вращения и нажатия колеса мыши 
             self.displays: dict = { 
-                "BEGIN":{"nav":{1: ("да", self.st_mtd_yes), 2: ("настр.", self.st_mtd_settings), 3: ("нет", self.st_mtd_no)},
+                "BEGIN":{"nav":{1: ["да", self.st_mtd_yes], 2: ["настр.", self.st_mtd_settings], 3: ["нет", self.st_mtd_no]},
                          "field": dict(),
-                         "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"}
+                         "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"},
+                         "navigate": True
                          
                 },
-                "SETTING":{"nav":{1: ("да", self.st_mtd_sett_yes),  2: ("нет", self.st_mtd_sett_no)},
-                            "field":{3: (f"передат. число:", self.set_dreductor, self.delta_reductor), 4: (f"скорость авто:", self.set_vauto, self.vauto)},
-                            "text": {1: f"{'\u00A0'*2}"+"глобальные"+f"{'\u00A0'}"+"настройки"}
+                "SETTING":{"nav":{1: ["да", self.st_mtd_sett_yes],  2: ["нет", self.st_mtd_sett_no]},
+                            "field":{3: [f"передат. число:", self.set_dreductor, self.delta_reductor], 4: [f"скорость авто:", self.set_vauto, self.vauto]},
+                            "text": {1: f"{'\u00A0'*2}"+"глобальные"+f"{'\u00A0'}"+"настройки"},
+                            "navigate": True
                 }
             }
 
@@ -715,13 +728,24 @@
 
             dsp = self.displays[s]
 
+                # для моргания значения пункта поля ввода в меню настроек
+            if (time.time() - self.timer) >= 0.3:
+                self.blink += 1
+                self.timer = time.time()
+                if self.blink >= 255:
+                    self.blink = 0
+           
+            
+            
                 # очистка и наполнение при каждом вызове атрибута-словаря пунктами меню 
                 # (строка навигации и если есть поля ввода) текущего дисплея состояния.
             self.map_display.clear()
             self.map_display.extend([dsp["nav"], dsp["field"]])
 
-                # замещение метода события вращения колеса
-            self.wheel_method = self.st_mtd_wheel
+                # проверка что мы сейчас не редактируем параметры настроек. Только для колесика мыши.
+            if dsp["navigate"]:
+                    # замещение метода события вращения колеса
+                self.wheel_method = self.st_mtd_wheel
 
                 # замещение метода события нажатия колесика мыши по пунктам меню
             self.push_wheel_method = self.get_deploy_map_display()[self.nav][1]
@@ -743,6 +767,8 @@
 
             # --------------------------------> SETTING state   
             elif s == "SETTING":
+                
+
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
 
@@ -759,6 +785,19 @@
             window.setTimeout(self.run)
 
 
+        def apply(self) -> None:
+            self.stacknav = 1
+            
+            self.displays[self.enum_state.get(self.state)]["navigate"] = True
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.stackpush
+            self.stackpush = None
+
+
+
+        def count_field(self) -> None:
+            
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][2] += (self.encoder.around_direction / 2.0)
+            
 
 
         def st_mtd_yes(self) -> None:
@@ -803,8 +842,18 @@
         def set_dreductor(self) -> None:
             """поле ввода ПЕРЕДАТОЧН. ЧИСЛО РЕДУКТОРА.
             экран настройки. Событие по нажатии"""
-
-            self.st_mtd_settings()
+                
+               
+            
+            
+                # подменяю метод при вращении колеса мыши
+            self.wheel_method = self.count_field
+                # сохраняю ссылку на метод (который по умолчанию) нажатии колесика мыши 
+            self.stackpush = self.displays[self.enum_state.get(self.state)]["field"][self.nav][1]
+                # теперь этому полю подменяю метод по следующему нажатию
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.apply
+                # запрет навигации. только больше-меньше значения параметра при вращении колеса мыши
+            self.displays[self.enum_state.get(self.state)]["navigate"] = False
 
            
         def set_vauto(self) -> None:
@@ -852,7 +901,22 @@
             navigate = list(map(lambda z: f"\u25b6{z[1][0]}\u25c0" if z[0] == self.nav else z[1][0], st_nav.items()))
                 
                 # формирование списка полей ввода с помеченным пунктом в зависимости от self.nav Работает в паре с строкой навигации
-            field = list(map(lambda x: f"\u25b6{x[1][0]}\u25c0 {x[1][2]}" if x[0] == self.nav else f"{x[1][0]} {x[1][2]}", field_nav.items()))
+            field: list = list()
+            
+                # если находимся в меню настроек при редактировании, то
+                # мигаем значением редактируемого поля   
+            for key, val in field_nav.items():
+                if key == self.nav:                    
+                    if not self.displays[current_state]["navigate"]:
+                        if self.blink % 2 == 0:
+                            result = f"\u25b6 {val[0]} {val[2]}"
+                        else: 
+                            result = f"\u25b6 {val[0]} "
+                    else: result = f"\u25b6 {val[0]} {val[2]}"  
+                else:
+                    result = f"{val[0]} {val[2]}"
+                field.append(result)
+            
             return (f"{'\u00A0'*5}".join(navigate), field)
 
 
