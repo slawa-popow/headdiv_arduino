@@ -443,6 +443,10 @@
             """Не изменяемый"""
             pass
 
+        @property
+        def strlen(self) -> int:
+            return self._max_len
+
 
         def on_power(self) -> None:
             """Включить питание. Цвет дисплея светло зелено-серый"""
@@ -731,7 +735,7 @@
             self._amount: int = 8
 
                 # итого в сумме при равномерной разметке
-            self._totalsum: float = 0
+            self._totalsum: float = 45.0
 
                 # массив (список) для задания значений не равномерной разметки.
                 # заполняем как есть например [20,20,20,45]. в сумме должно быть <= 360
@@ -742,13 +746,13 @@
 
                 # константы макро состояний
             self.enum_state: dict = {
-                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE", 5: "RUN_AUTO", 6: "BEGIN"
+                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE_AM", 5: "RUN_AUTO", 6: "BEGIN"
             }
                 # дисплеи состояний, пункты меню, замещающие ссылки методов на события вращения и нажатия колеса мыши 
             self.displays: dict = { 
                 "BEGIN":{"nav":{1: ["да", self.st_mtd_yes], 2: ["настр.", self.st_mtd_settings], 3: ["нет", self.st_mtd_no]},
                          "field": dict(),
-                         "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"},
+                         "text": {2: f"{'\u00A0'*6}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка?"},
                          "navigate": True
                          
                 },
@@ -760,6 +764,11 @@
                 "EQUALLY": {"nav":{1: ["да", self.st_mtd_equal_yes]},
                             "field": {2: [f"количество:", self.set_amount, self._amount], 3: [f"градусов:", self.set_total_sum, self._totalsum]},
                             "text": {1: f"{'\u00A0'*2}"+"разметка поровну"},
+                            "navigate": True
+                },
+                "PREPARE_AM": {"nav": {1: ["начать", self.start_head], 2: ["отмена", self.stop_head]},
+                            "field": dict(),
+                            "text": {1: f"{'\u00A0'*8}"+"Старт", 2: f"{'\u00A0'*5}"+"равномерная", 3: f"{'\u00A0'*7}"+"разметка"},
                             "navigate": True
                 }
             }
@@ -836,7 +845,17 @@
                 for i, line in enumerate(field_sett):
                     self.lcd.write(line, i+3)
 
+            # --------------------------------> EQUALLY state 
+            elif s == "PREPARE_AM":
+                 
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
 
+                navigate, field_sett = self.get_nav(s) 
+                self.lcd.write(navigate, 8)
+                self.lcd.write(f"{'-' * self.lcd.strlen}", 4) 
+                self.lcd.write(f"{'\u00A0'*3} на {self.amount}"+" штук", 5)
+                self.lcd.write(f"{'\u00A0'*3} по {self.total_sum}"+" градусов", 6)
 
                 # void loop()
             window.setTimeout(self.run)
@@ -876,8 +895,12 @@
         
         def count_field_equally(self) -> None:
             """Вращение колеса мыши. РАВН. РАЗМЕТКА."""
+        
             self.amount += self.encoder.around_direction       
-            
+            try:
+                x = 1 / self.amount    
+            except ZeroDivisionError:
+                self.amount = 1
 
 
         def st_mtd_yes(self) -> None:
@@ -917,6 +940,15 @@
 
         def st_mtd_equal_yes(self) -> None:
             """пункт меню ДА равномерная разметка"""
+            self.state = 4
+            self.nav = 1
+            self.lcd.clean()
+            # тут вызов рисовалки
+
+        def start_head(self) -> None:
+            pass
+
+        def stop_head(self) -> None:
             self.st_mtd_sett_yes()
 
 
@@ -1070,7 +1102,7 @@
         def amount(self, value: int) -> None:
             if self.amount > 360:
                 self.this_param -= 1
-            elif self.amount < 1:
+            elif self.amount <= 0:
                 self.this_param = 1
             else:
                 self.this_param = int(value)
@@ -1078,7 +1110,8 @@
                     self.displays["EQUALLY"]["field"][3][2] = round(360 / self.amount, 2)
                 except ZeroDivisionError:
                     self.displays["EQUALLY"]["field"][3][2] = 360
-
+            self._amount = self.amount
+           
 
         @property
         def total_sum(self) -> int:
