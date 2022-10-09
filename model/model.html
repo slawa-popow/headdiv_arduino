@@ -690,12 +690,34 @@
                 # метод вызываемый при нажатии на колесо мыши
             self.push_wheel_method: Callable = self.button_wheel
             
+            # ---------------- атрибуты устройства ---------------------
                 # передаточное число
-            self.delta_reductor: float = 1.0
+            self._delta_reductor: float = 1.0
 
                 # скорость в режиме разметки
-            self.vauto: float = 0.5
+            self._vauto: float = 0.1
 
+                # скорость в ручном режиме
+            self._vman: float = 1.5
+
+                # угол между метками
+            self. _set_deg: float = 45.0
+
+                # разбить на равное кол-во частей?
+            self.is_equally: bool = True
+
+                # количество меток
+            self._amount: int = 8
+
+                # итого в сумме при равномерной разметке
+            self._totalsum: float = 0
+
+                # массив (список) для задания значений не равномерной разметки.
+                # заполняем как есть например [20,20,20,45]. в сумме должно быть <= 360
+            self.groupdegs: list = [0 for i in range(360)]
+
+                # текущий угол поворота
+            self.degpos: float = 0
 
                 # константы макро состояний
             self.enum_state: dict = {
@@ -710,8 +732,13 @@
                          
                 },
                 "SETTING":{"nav":{1: ["да", self.st_mtd_sett_yes],  2: ["нет", self.st_mtd_sett_no]},
-                            "field":{3: [f"передат. число:", self.set_dreductor, self.delta_reductor], 4: [f"скорость авто:", self.set_vauto, self.vauto]},
+                            "field":{3: [f"передат. число:", self.set_dreductor, self._delta_reductor], 4: [f"скорость авто:", self.set_vauto, self._vauto]},
                             "text": {1: f"{'\u00A0'*2}"+"глобальные"+f"{'\u00A0'}"+"настройки"},
+                            "navigate": True
+                },
+                "EQUALLY": {"nav":{1: ["да", self.st_mtd_equal_yes], 2: ["нет", self.st_mtd_equal_no]},
+                            "field": {3: [f"количество:", self.set_amount, self._amount], 4: [f"градусов:", self.set_total_sum, self._totalsum]},
+                            "text": {1: f"{'\u00A0'*2}"+"разметка поровну"},
                             "navigate": True
                 }
             }
@@ -764,10 +791,8 @@
                     # вывести меню на экран
                 self.lcd.write(navigate, 8) 
 
-
             # --------------------------------> SETTING state   
             elif s == "SETTING":
-                
 
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
@@ -781,29 +806,64 @@
                 for i, line in enumerate(field_sett):
                     self.lcd.write(line, i+3)
 
+            # --------------------------------> EQUALLY state 
+            elif s == "EQUALLY":
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                navigate, field_sett = self.get_nav(s)
+                    # вывести меню на экран
+                self.lcd.write(navigate, 8) 
+                for i, line in enumerate(field_sett):
+                    self.lcd.write(line, i+3)
+
+
+
                 # void loop()
             window.setTimeout(self.run)
 
 
         def apply(self) -> None:
-            self.stacknav = 1
-            
+            """Применить после второго нажатия на колесо при редактировании. 
+              Для всех работает одиноково (т-е индивидуальности не требуется)."""
+
             self.displays[self.enum_state.get(self.state)]["navigate"] = True
             self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.stackpush
             self.stackpush = None
 
 
 
-        def count_field(self) -> None:
-            
-            self.displays[self.enum_state.get(self.state)]["field"][self.nav][2] += (self.encoder.around_direction / 2.0)
+        def change_delta_reductor(self) -> None:
+            """ Инкремент-декремент значений при вращении колеса мыши на пункте поля ввода 
+                передаточное число редуктора"""            
+            self.delta_reductor += (self.encoder.around_direction / 2.0)
+
+
+        def change_total_sum(self) -> None:
+            """Инкремент-декремент значений при вращении колеса мыши на пункте поля ввода 
+            градусы в меню равномерная разметка"""
+
+            self.total_sum += (self.encoder.around_direction / 2.0)
+
+
+        def change_vauto(self) -> None:
+            """настройки SETTING скорость в авторежиме"""
+            self.vauto += (self.encoder.around_direction / 10)
+
+        
+        
+        def count_field_equally(self) -> None:
+            """Вращение колеса мыши. РАВН. РАЗМЕТКА."""
+            self.amount += self.encoder.around_direction       
             
 
 
         def st_mtd_yes(self) -> None:
             """пункт меню ДА-главный экран. Событие по нажатии"""
 
-            self.lcd.write("выбор: да", 5)
+            self.state = 1
+            self.lcd.clean()
+            self.nav = 1
 
 
         def st_mtd_settings(self) -> None:
@@ -838,16 +898,48 @@
             self.lcd.clean()
 
 
+        def st_mtd_equal_yes(self) -> None:
+            """пункт меню ДА равномерная разметка"""
+            self.st_mtd_sett_yes()
+
+        def st_mtd_equal_no(self) -> None:
+             """пункт меню НЕТ равномерная разметка"""
+             self.st_mtd_sett_yes()
+
+
 
         def set_dreductor(self) -> None:
             """поле ввода ПЕРЕДАТОЧН. ЧИСЛО РЕДУКТОРА.
             экран настройки. Событие по нажатии"""
-                
-               
-            
             
                 # подменяю метод при вращении колеса мыши
-            self.wheel_method = self.count_field
+            self.wheel_method = self.change_delta_reductor
+                # сохраняю ссылку на метод (который по умолчанию) нажатии колесика мыши 
+            self.stackpush = self.displays[self.enum_state.get(self.state)]["field"][self.nav][1]
+                # теперь этому полю подменяю метод по следующему нажатию
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.apply
+                # запрет навигации. только больше-меньше значения параметра при вращении колеса мыши
+            self.displays[self.enum_state.get(self.state)]["navigate"] = False
+
+
+        def set_amount(self) -> None:
+            """поле ввода КОЛИЧЕСТВО равномерная разметка"""
+            
+                # подменяю метод при вращении колеса мыши
+            self.wheel_method = self.count_field_equally
+                # сохраняю ссылку на метод (который по умолчанию) нажатии колесика мыши 
+            self.stackpush = self.displays[self.enum_state.get(self.state)]["field"][self.nav][1]
+                # теперь этому полю подменяю метод по следующему нажатию
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.apply
+                # запрет навигации. только больше-меньше значения параметра при вращении колеса мыши
+            self.displays[self.enum_state.get(self.state)]["navigate"] = False
+
+        
+        def set_total_sum(self) -> None:
+            """ поле ввода ГРАДУСЫ равномерная разметка"""
+
+            # подменяю метод при вращении колеса мыши
+            self.wheel_method = self.change_total_sum
                 # сохраняю ссылку на метод (который по умолчанию) нажатии колесика мыши 
             self.stackpush = self.displays[self.enum_state.get(self.state)]["field"][self.nav][1]
                 # теперь этому полю подменяю метод по следующему нажатию
@@ -860,8 +952,10 @@
             """поле ввода СКОРОСТЬ АВТО.
             экран настройки. Событие по нажатии"""
 
-            self.st_mtd_settings()
-
+            self.wheel_method = self.change_vauto
+            self.stackpush = self.displays[self.enum_state.get(self.state)]["field"][self.nav][1]
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.apply
+            self.displays[self.enum_state.get(self.state)]["navigate"] = False
 
 
         def st_mtd_wheel(self) -> None:
@@ -932,10 +1026,24 @@
                     curr_display.update(upd)
 
             return curr_display
-            
+
+
+        def empty_method(self) -> None:
+            """метод пустышка"""
+            pass
 
         # - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        
+        @property
+        def this_param(self) -> Any:
+            """Значение параметра в словаре в зависимости от тек. состояния """
+            return self.displays[self.enum_state.get(self.state)]["field"][self.nav][2]
+
+        @this_param.setter
+        def this_param(self, value: Any) -> None:
+            self.displays[self.enum_state.get(self.state)]["field"][self.nav][2] = value
+
+
+
         @property
         def state(self) -> int:
             return self._state
@@ -954,6 +1062,68 @@
         def substate(self, value: int) -> None:
             self._substate = value
 
+        
+        @property
+        def amount(self) -> int:
+            """Количество. Равномерная разметка."""
+            return self.displays["EQUALLY"]["field"][3][2]
+
+        @amount.setter
+        def amount(self, value: int) -> None:
+            if self.amount > 360:
+                self.this_param -= 1
+            elif self.amount < 1:
+                self.this_param = 1
+            else:
+                self.this_param = int(value)
+                try:
+                    self.displays["EQUALLY"]["field"][4][2] = round(360 / self.amount, 2)
+                except ZeroDivisionError:
+                    self.displays["EQUALLY"]["field"][4][2] = 360
+
+
+        @property
+        def total_sum(self) -> int:
+            """Сумма разбиений при равномерной разметке"""
+            return self.displays["EQUALLY"]["field"][4][2]
+
+
+        @total_sum.setter
+        def total_sum(self, value: float) -> None:
+            if value >= 1:
+                self.this_param = value
+            
+            if (self.total_sum * self.amount) > 360:
+                while self.total_sum * self.amount > 360:
+                    self.this_param -= 1
+            
+
+
+        @property
+        def delta_reductor(self) -> float:
+            """Передаточное число редуктора"""
+            return self.displays["SETTING"]["field"][3][2]
+
+        @delta_reductor.setter
+        def delta_reductor(self, value: float) -> None:
+            self.this_param = 1 if self.delta_reductor <= 0 else float(value)
+            try:
+                x = 1 / self.delta_reductor
+            except ZeroDivisionError:
+                self.this_param = 0.5   
+        
+        @property
+        def vauto(self) -> float:
+            """SETTING скорость в авто режиме"""
+            return self.displays["SETTING"]["field"][4][2]
+
+        @vauto.setter
+        def vauto(self, value: float) -> None:
+            self.this_param = 0.1 if self.vauto <= 0 else round(value, 2)
+            try:
+                x = 1 / self.vauto
+            except ZeroDivisionError:
+                self.this_param = 0.1
 
 
         @property
