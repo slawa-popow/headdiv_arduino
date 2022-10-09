@@ -267,6 +267,7 @@
     from typing import Any, Callable
     from functools import wraps
     import time
+    import math
 
 
 
@@ -609,7 +610,44 @@
                 # на сколько градусов провернут вал
             self._total_d: int = 0
 
-               
+                # намеченные точки вокруг вала
+            self.points: dict = dict()
+
+            self.gservo = document["servo"]
+           
+
+        
+        def create_points(self, num_points: int , deg: float = None) -> None:
+            cx = float(self.limb["cx"])
+            cy = float(self.limb["cy"])
+            delta = 360 / num_points
+            tmp_deg = 0
+            radius = int(self.limb["r"])+12
+            def make_point(id: str, posX: int, posY: int, radius: float):
+                svgNS = "http://www.w3.org/2000/svg"
+                point =  document.createElementNS(svgNS,"circle")
+                point.setAttributeNS(None, "id", id)
+                point.setAttributeNS(None, "cx", posX)
+                point.setAttributeNS(None, "cy", posY)
+                point.setAttributeNS(None, "r", radius)
+                point.setAttributeNS(None, "fill", "rgba(137, 17, 173, 0.7)")
+                return point
+            for i in range(num_points):
+                key: str = "point"+str(i)
+                posX = cx + radius * math.cos((tmp_deg*math.pi)/180)
+                posY = cy + radius * math.sin((tmp_deg*math.pi)/180)
+                obj_point = make_point(key, posX, posY, 4) 
+                self.gservo.appendChild(obj_point)
+                self.points[key] = obj_point
+                tmp_deg += delta
+
+
+        def delete_points(self) -> None:
+            if self.points:
+                for key, val in self.points.items():
+                    self.gservo.removeChild(val)
+                self.points.clear()
+            
 
 
         @property
@@ -944,11 +982,13 @@
             self.nav = 1
             self.lcd.clean()
             # тут вызов рисовалки
+            self.motor.create_points(self.amount)
 
         def start_head(self) -> None:
             pass
 
         def stop_head(self) -> None:
+            self.motor.delete_points()
             self.st_mtd_sett_yes()
 
 
