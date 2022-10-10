@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="171.645" y1="201.89" x2="171.645" y2="210.213" id="gradient-0" gradientTransform="matrix(0.510622, 0, 0, 1.081309, 239.726791, -27.30547)">
+      <stop offset="0" style="stop-color: rgb(214, 214, 214);"/>
+      <stop offset="0.416" style="stop-color: rgb(168, 168, 168);"/>
+      <stop offset="0.518" style="stop-color: rgb(166, 166, 166);"/>
+      <stop offset="1" style="stop-color: rgb(214, 214, 214);"/>
+    </linearGradient>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, -111.593361, -129.585983)" id="servo">
+    <g transform="matrix(1, 0, 0, 1, 0.238725, -0.238726)">
+      <rect x="243.655" y="171.743" width="81.218" height="48" style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(122, 122, 122);"/>
+      <rect x="244" y="172" width="6" height="48" style="fill: rgb(240, 240, 240); stroke: rgba(0, 0, 0, 0.17);"/>
+      <rect x="318.478" y="172" width="6" height="47.304" style="fill: rgb(240, 240, 240); stroke: rgba(0, 0, 0, 0.17);"/>
+      <rect x="324.872" y="191" width="5" height="9" style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: url(#gradient-0);"/>
+      <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="250.397" y1="210.466" x2="318.177" y2="210.466"/>
+      <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="250.099" y1="203.924" x2="317.879" y2="203.924"/>
+      <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="249.951" y1="196.639" x2="317.731" y2="196.639"/>
+      <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="250.099" y1="189.353" x2="317.879" y2="189.353"/>
+      <line style="fill: rgb(140, 140, 140); stroke: rgb(113, 110, 110);" x1="250.099" y1="182.365" x2="317.879" y2="182.365"/>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 0, -0.437964)" id="reductor">
+      <rect style="fill: rgb(216, 216, 216); stroke: rgb(197, 188, 188);" x="143.076" y="166.769" width="100.666" height="90.741" rx="5" ry="5"/>
+      <g style="" transform="matrix(0.623083, 0, 0, 0.623083, -1.71589, 34.4259)" id="val" bx:origin="0.485929 0.539519">
+        <path style="paint-order: fill; stroke: rgb(80, 75, 75); fill: rgb(117, 147, 189);" d="M 313.725 266.214 C 327.041 266.214 335.363 280.629 328.705 292.16 C 322.048 303.692 305.403 303.692 298.745 292.16 C 293.918 283.8 296.869 273.107 305.3 268.405 L 307.145 275.834 L 315.535 273.585 L 313.725 266.214 Z" transform="matrix(0.970296, 0.241922, -0.241922, 0.970296, 77.906961, -67.478207)"/>
+      </g>
+      <circle style="fill: none; stroke-width: 4px; stroke: rgb(80, 75, 75);" cx="193.498" cy="211.22" r="20.908"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.816774, 0, 0, 0.806308, 24.008261, 17.966883)">редуктор</text>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.848315, 0, 0, 0.813387, 160.770172, 18.555504)">мотор</text>
+      <rect style="stroke: rgb(0, 0, 0); fill: none;" x="150.919" y="173.864" width="84.525" height="75.133" rx="5" ry="5"/>
+    </g>
+  </g>
+</svg>
