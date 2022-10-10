@@ -265,9 +265,9 @@
                 <g>
                   <g transform="matrix(0.5722, 0, 0, 0.5722, -105.686287, 47.097092)" >
                     <path d="M 143.426 78.081 C 137.975 78.081 133.21 80.967 130.538 85.285 L 130.538 80.354 C 130.538 71.981 123.75 65.193 115.377 65.193 C 109.926 65.193 105.161 68.079 102.489 72.397 L 102.489 68.983 C 102.489 60.61 95.701 53.822 87.328 53.822 C 81.877 53.822 77.112 56.708 74.44 61.026 L 74.44 15.161 C 74.44 6.788 67.652 0 59.279 0 C 50.906 0 44.118 6.788 44.118 15.161 L 44.118 129.216 L 27.117 107.418 C 21.968 100.815 12.44 99.637 5.838 104.787 C -0.765 109.936 -1.942 119.464 3.207 126.066 L 50.872 187.18 C 58.048 197.876 70.248 204.931 84.067 204.931 L 113.744 204.931 C 137.976 204.931 158.588 185.296 158.588 160.087 C 158.588 153.284 158.588 99.378 158.588 93.241 C 158.587 84.869 151.799 78.081 143.426 78.081 Z" style="fill: url(#gradient-50);" transform="matrix(-1, 0, 0, -1, 158.588298, 204.931)"></path>
-                    <path d="M 62.72 236.492 C 68.242 236.492 72.72 232.015 72.72 226.492 C 72.72 211.831 84.647 199.903 99.308 199.903 C 113.968 199.903 125.896 211.831 125.896 226.492 C 125.896 232.015 130.374 236.492 135.896 236.492 C 141.418 236.492 145.896 232.015 145.896 226.492 C 145.895 200.802 124.996 179.903 99.308 179.903 C 73.62 179.903 52.72 200.802 52.72 226.492 C 52.72 232.014 57.197 236.492 62.72 236.492 Z" style="fill: rgb(0, 147, 49);" id="lamp-push" transform="matrix(-1, 0, 0, -1, 198.615997, 416.395004)"></path>
+                    <path id="lamp-push" d="M 62.72 236.492 C 68.242 236.492 72.72 232.015 72.72 226.492 C 72.72 211.831 84.647 199.903 99.308 199.903 C 113.968 199.903 125.896 211.831 125.896 226.492 C 125.896 232.015 130.374 236.492 135.896 236.492 C 141.418 236.492 145.896 232.015 145.896 226.492 C 145.895 200.802 124.996 179.903 99.308 179.903 C 73.62 179.903 52.72 200.802 52.72 226.492 C 52.72 232.014 57.197 236.492 62.72 236.492 Z" style="fill: rgb(147, 22, 0);" transform="matrix(-1, 0, 0, -1, 198.615997, 416.395004)"></path>
                   </g>
-                  <text style="fill: rgb(51, 51, 51); font-size: 42px; line-height: 58px;" x="-187" y="30" id="text-push-hand">не нажато</text>
+                  <text id="text-hand-push"style="fill: rgb(51, 51, 51); font-size: 42px; line-height: 58px;" x="-167" y="30" >не нажато</text>
                 </g>
               </g>
             </g>
@@ -316,7 +316,11 @@
     # id кнопок:            ["power-on"] - зеленая. Включить питание.
     #                       ["power-off"] - красная. Откл. питание. Стоп
     #                       ["encoder"] - кнопка колесика мыши. Работает с событием "mousedown". Номер кнопки = 2
+    #                       ["man-mode"] - ручной режим. работает как флаг
     #
+    # id руки ручн. режима: ["hand-push"] - <g> рука + текст + полумесяц
+    #                       ["lamp-push"] - полумесяц
+    #                       ["text-hand-push"] - текст
     #
     #
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -779,10 +783,11 @@
             self.lcd = lcd
             self.encoder = encoder
             self.motor = motor
+            self.lamp_man_mode = document["lamp-push"]
+            self.text_man_mode = document["text-hand-push"]
 
                 # хранит позицию выделенного пункта меню
             self.nav = 1
-
 
                 # сохраняет ссылку на метод события нажатия колесика перед экзекуцией
             self.stackpush = None
@@ -800,6 +805,12 @@
                 
                 # таймер
             self.timer = time.time()
+
+                # флаг ручной режим. Для поворота вала енкодером 
+            self.is_man_mode: bool = False
+                
+                # флаг разрешения ручного режима
+            self.is_push_man_mode: bool = False
 
                 # метод вызываемый при прокрутки колеса мыши
             self.wheel_method: Callable = self.round_wheel
@@ -896,7 +907,7 @@
 
                 # замещение метода события нажатия колесика мыши по пунктам меню
             self.push_wheel_method = self.get_deploy_map_display()[self.nav][1]
-            
+            self.manual_mode()
 
             # --------------------------------> BEGIN state
             if s == "BEGIN":
@@ -948,6 +959,7 @@
                 self.lcd.write(f"{'-' * self.lcd.strlen}", 4) 
                 self.lcd.write(f"{'\u00A0'*3} на {self.amount}"+" штук", 5)
                 self.lcd.write(f"{'\u00A0'*3} по {self.total_sum}"+" градусов", 6)
+                
 
                 # void loop()
             window.setTimeout(self.run)
@@ -1037,13 +1049,27 @@
             self.lcd.clean()
             # тут вызов рисовалки
             self.motor.create_points(self.amount)
+            self.is_push_man_mode = True
+
 
         def start_head(self) -> None:
             pass
 
         def stop_head(self) -> None:
+                # выключить ручной режим
+            self.is_push_man_mode = False
+            self.is_man_mode = False
+                # удалить точки
             self.motor.delete_points()
             self.st_mtd_sett_yes()
+
+        def manual_mode(self) -> None:
+            if self.is_push_man_mode and self.is_man_mode:
+                self.lamp_man_mode.style = f"fill: rgb(0, 147, 49);"
+                self.text_man_mode.textContent = "удержание"
+            else:
+                self.lamp_man_mode.style = f"fill: rgb(147, 22, 0);"
+                self.text_man_mode.textContent = "не нажато"
 
 
         @substitute_wheel
@@ -1321,6 +1347,12 @@
     @bind(document["power-off"], "click")
     def stop_rotate(e):
         controller.motor.degstep = 10
+
+
+    @bind(document["man-mode"], "click")
+    def man_mode(e):
+        b = controller.is_man_mode 
+        controller.is_man_mode = not b
    
     </script>
       
