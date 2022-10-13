@@ -181,7 +181,7 @@
             <g id="val" transform-origin="82 81">
             <path style="paint-order: fill; stroke: rgb(80, 75, 75); fill: rgb(117, 147, 189);" d="M 82.168 70.275 C 90.464 70.275 95.65 79.257 91.501 86.442 C 87.353 93.627 76.982 93.627 72.834 86.442 C 69.826 81.233 71.665 74.57 76.918 71.641 L 78.068 76.269 L 83.295 74.868 L 82.168 70.275 Z"  ></path>
             </g>
-            <circle id="limb" style="fill: none; stroke-width: 4px; stroke: rgb(138, 132, 132);" cx="82" cy="81.5" r="19"></circle>
+            <circle id="limb" style="fill: none; stroke-width: 4px; stroke: rgb(138, 132, 132);" cx="82" cy="81.5" r="17"></circle>
             <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.816774, 0, 0, 0.806308, -87.585098, -112.05706)">редуктор</text>
             <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 12.3px;" x="153.031" y="178.119" transform="matrix(0.848315, 0, 0, 0.813387, 49.176811, -111.468437)">мотор</text>
             <rect style="stroke: rgb(0, 0, 0); fill: none;" x="39.326" y="43.84" width="84.525" height="75.133" rx="5" ry="5"></rect>
@@ -292,7 +292,7 @@
     <script type="text/python">
 
     from browser import document, window, html, bind, timer
-    from typing import Any, Callable
+    from typing import Any, Callable, Generator
     from functools import wraps
     import time
     import math
@@ -630,6 +630,11 @@
     class Motor(Component):
         """Мотор-редуктор"""
 
+        svg_attrs_point: tuple = ("id", "cx", "cy", "r")
+        svg_attrs_text: tuple = ("id", "x", "y")
+        svg_attrs_line: tuple = ("id", "x1", "y1", "x2", "y2")            
+        
+
         def __init__(self, id_val: str, id_limb: str) -> None:
             super().__init__()
 
@@ -644,77 +649,92 @@
 
                 # намеченные точки вокруг вала
             self.points: dict = dict()
-
+                
+                # объекты текста (числа в градусах возле точек)
             self.text_deg_point: list = list()
 
                 # g группа для точек
             self.gservo = document["servo"]
             self.arrow_line = None
 
+        # ------------------------------------------------------------------------------
         
-        def create_points(self, num_points: int , deg: float = None) -> None:
+        def create_points(self, num_points: int , deg_pos: float = None) -> None:
             """Нарисовать точки-окружности после команды ДА равномерная разметка.
-               Также рисуется линия-указатель. С позиции относительный нуль справа."""
+               Также рисуется линия-указатель и текст число градусов возле точки. С позиции относительный нуль справа."""
 
             cx = float(self.limb["cx"])
             cy = float(self.limb["cy"])
             delta = 360 / num_points
             tmp_deg = 0
-            radius = int(self.limb["r"])+12
+            radius = int(self.limb["r"])+15
 
-            def make_text_deg(id: str, crdX: int, crdY: int, value: int):
+            def make_text_deg(value, *args):
+                """Текст угол волзе точки
+                параметры value: int *args =  id: str, crdX: int, crdY: int, """
+
                 svgNS = "http://www.w3.org/2000/svg"
                 label_point = document.createElementNS(svgNS, "text")
-                label_point.setAttributeNS(None, "id", id)
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_text, args):
+                    label_point.setAttributeNS(*attribute)
                 label_point.setAttributeNS(None, "style", f"fill: black; font-family: monospace; font-size: {5}px;")
-                label_point.setAttributeNS(None, "x", f"{crdX+3}")
-                label_point.setAttributeNS(None, "y", f"{crdY+2}")
                 label_point.textContent = f"{int(value)}\u00B0"
                 self.text_deg_point.append(label_point)
                 return label_point
 
-            def make_point(id: str, posX: int, posY: int, radius: float):
+
+            def make_point(*args):
+                """Создать точки вокруг вала.
+                   *args = id: str, posX: int, posY: int, radius: float"""
+
                 svgNS = "http://www.w3.org/2000/svg"
                 point =  document.createElementNS(svgNS,"circle")
-                point.setAttributeNS(None, "id", id)
-                point.setAttributeNS(None, "cx", posX)
-                point.setAttributeNS(None, "cy", posY)
-                point.setAttributeNS(None, "r", radius)
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_point, args):
+                    point.setAttributeNS(*attribute)
                 point.setAttributeNS(None, "fill", "rgba(137, 17, 173, 0.7)")
                 return point
 
-            def make_line(id: str, cx: float, cy: float, r: int):
-                posx = cx + r * math.cos((0*math.pi)/180)
-                posy = cy + r * math.sin((0*math.pi)/180)
+
+            def make_line(*args):
+                """Линия-указатель от центра вала до точки.
+                args = id: str, cx: float, cy: float, posx, posy"""
+
+                
                 svgNS = "http://www.w3.org/2000/svg"
                 ln = document.createElementNS(svgNS,"line")
-                ln.setAttributeNS(None, "id", id)
-                ln.setAttributeNS(None, "x1", cx)   
-                ln.setAttributeNS(None, "y1", cy)
-                ln.setAttributeNS(None, "x2", posx)
-                ln.setAttributeNS(None, "y2", posy)
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_line, args):
+                    ln.setAttributeNS(*attribute) 
                 ln.setAttributeNS(None, "stroke", "rgba(236, 35, 62, 0.815)")
                 ln.setAttributeNS(None, "stroke-width", "2px")
                 return ln
 
+
             for i in range(num_points):
-                key: str = "point"+str(i)
-                posX = cx + radius * math.cos((tmp_deg*math.pi)/180)
-                posY = cy + radius * math.sin((tmp_deg*math.pi)/180)
+                key: str = "point-"+str(i)
+                posX = cx + radius * math.cos(((tmp_deg ) * math.pi) / 180)
+                posY = cy + radius * math.sin(((tmp_deg ) * math.pi) / 180)
                 obj_point = make_point(key, posX, posY, 3) 
-                obj_text_point = make_text_deg("text_"+key, posX, posY, tmp_deg)
+                obj_text_point = make_text_deg(tmp_deg, "text-"+key, posX+3, posY+2)
                 self.gservo.appendChild(obj_point)
                 self.gservo.appendChild(obj_text_point)
-                self.points[key] = obj_point
+                    # ключ - номер пп, значение - объект
+                self.points[i] = obj_point
                 tmp_deg += delta
-
-            obj_line = make_line("arrow-line", cx, cy, radius)
+            
+                # -deg_pos * math.pi для того чтобы после поворота вала 
+                # (после отмены или ручного поворота, 2 круга программы) кружки и линия 
+                # рисовалить с нулем справа посередине вала (на 90 град от верха по-людски). 
+            posx_line = cx + radius * math.cos((-deg_pos * math.pi) / 180)
+            posy_line = cy + radius * math.sin((-deg_pos * math.pi) / 180)
+            obj_line = make_line("arrow-line", cx, cy, posx_line, posy_line)
             self.arrow_line = obj_line
             self.id.appendChild(obj_line)
+                
+        # ------------------------------------------------------------------------------
             
-
         def delete_points(self) -> None:
-            """Удалить точки и линию по выходе из меню, конца программы."""
+            """Удалить точки, значения угла и линию по 
+               выходе из меню, конца программы."""
 
             if self.points:
                 for key, val in self.points.items():
@@ -726,6 +746,13 @@
                     for txtp in self.text_deg_point:
                         self.gservo.removeChild(txtp)    
                 self.text_deg_point.clear()
+
+
+        def null_position(self) -> None:
+            """обнулить позицию вала"""
+            self._total_d = 0
+            self.id.attrs["transform"] = f"rotate(0)"
+
 
 
         @property
@@ -754,7 +781,7 @@
         def degstep(self, value) -> None:
             
             self._total_d += float(value)
-            if abs(self._total_d) >= 360:
+            if self._total_d >= 360:
                 self._total_d = 0
             
             self.id.attrs["transform"] = f"rotate({self._total_d})"
@@ -818,7 +845,11 @@
                 # состояние. начальное состояние = 'BEGIN'
             self._state = 6
 
+                # подсостояния в макросостоянии RUN_AUTO
             self._substate = 0
+
+                # генератор разбитых по окружности значений углов
+            self.deggen = None
 
                 # счетчик таймера. Для мигания выбранного поля ввода.
             self.blink: int = 0
@@ -860,17 +891,33 @@
                 # итого в сумме при равномерной разметке
             self._totalsum: float = 45.0
 
-                # массив (список) для задания значений не равномерной разметки.
-                # заполняем как есть например [20,20,20,45]. в сумме должно быть <= 360
-            self.groupdegs: list = [0 for i in range(360)]
+                # массив (список) для задания значений не равномерной и равномерной разметки.
+                # в меню неравном. разметка заполняем как есть например [20,20,20,45]. в сумме должно быть <= 360
+            self.groupdegs: list = list()
 
                 # текущий угол поворота
             self.degpos: float = 0
+            
+                
+                # значение градусов, до которого нужно провернуть сейчас
+            self._next_point: float = 0.0
+
+                # количество шагов (от точки до точки)
+            self.total_point = 0
+
+                # счетчик точек
+            self.counter_point = 0
 
                 # константы макро состояний
             self.enum_state: dict = {
-                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE_AM", 5: "RUN_AUTO", 6: "BEGIN"
+                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE_AM", 5: "RUN_AUTO", 6: "BEGIN", 7: "STOP"
             }
+
+                # константы микросостояний в режиме работы авто
+            self.enum_microstate: dict = {
+                0: "mSTOP", 1: "mGET_CORO", 2: "mNEXT_POINT", 3: "mROTATE", 4: "mPOINT",  5: "mPAUSE", 6: "mCONTINUE"
+            }
+
                 # дисплеи состояний, пункты меню, замещающие ссылки методов на события вращения и нажатия колеса мыши 
             self.displays: dict = { 
                 "BEGIN":{"nav":{1: ["да", self.st_mtd_yes], 2: ["настр.", self.st_mtd_settings], 3: ["нет", self.st_mtd_no]},
@@ -886,7 +933,7 @@
                             "navigate": True
                 },
                 "EQUALLY": {"nav":{1: ["да", self.st_mtd_equal_yes]},
-                            "field": {2: [f"количество:", self.set_amount, self._amount], 3: [f"градусов:", self.set_total_sum, self._totalsum]},
+                            "field": {2: [f"количество:", self.set_amount, self._amount], 3: [f"градусов:", self.empty_method, self._totalsum]},
                             "text": {1: f"{'\u00A0'*2}"+"РАЗМЕТКА ПОРОВНУ"},
                             "navigate": True
                 },
@@ -894,6 +941,16 @@
                             "field": dict(),
                             "text": {1: f"\u00A0 РАВНОМЕРНАЯ РАЗМЕТКА"},
                             "navigate": True
+                },
+                "RUN_AUTO": {"nav": {1: ["продолжить", self.continue_head], 2: ["отмена", self.cancel]},
+                            "field": dict(),
+                            "text": {1: "В РАБОТЕ!"},
+                            "navigate": True
+                },
+                "STOP": {"nav": {1: ["в начало", self.stop_head]},
+                         "field": dict(),
+                         "text": {2: f"{'\u00A0'*9} СТОП"},
+                         "navigate": True
                 }
             }
 
@@ -905,7 +962,6 @@
             s = self.enum_state.get(self.state)
             if not s:
                 self.state = 6
-                self.substate = 0
 
             dsp = self.displays[s]
 
@@ -931,8 +987,9 @@
             
 
             # --------------------------------> BEGIN state
+            
             if s == "BEGIN":
-                
+                self.manual_mode()
                     # текст на табло
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
@@ -941,7 +998,9 @@
                 navigate, field_sett = self.get_nav(s) 
                
                     # вывести меню на экран
-                self.lcd.write(navigate, 8) 
+                self.lcd.write(navigate, 8)
+                mode = f"положение: {round(self.degpos, 4)}\u00B0"
+                self.lcd.write(mode, 5)
 
             # --------------------------------> SETTING state   
             elif s == "SETTING":
@@ -960,6 +1019,7 @@
 
             # --------------------------------> EQUALLY state 
             elif s == "EQUALLY":
+                
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
 
@@ -971,18 +1031,110 @@
 
             # --------------------------------> PREPARE_AM state 
             elif s == "PREPARE_AM":
-                self.manual_mode()
+                
                 for k in dsp["text"]:
                     self.lcd.write(dsp["text"][k], k)
 
                 navigate, field_sett = self.get_nav(s) 
                 self.lcd.write(navigate, 8)
-                mode = f"режим: ручн. {self.degpos} град" if self.is_man_mode else 'режим: авто'
+                mode = f"положение: {round(self.degpos, 4)}\u00B0"
                 self.lcd.write(mode, 3)
                 self.lcd.write(f"{'-' * self.lcd.strlen}", 4) 
                 self.lcd.write(f"{'\u00A0'*3} на {self.amount}"+" штук", 5)
-                self.lcd.write(f"{'\u00A0'*3} по {self.total_sum}"+" градусов", 6)
-                
+                self.lcd.write(f"{'\u00A0'*3} по {self.total_sum}"+"\u00B0", 6)
+
+            # --------------------------------> RUN_AUTO state
+                        #
+                        # 0: "mSTOP", 1: "mGET_CORO", 2: "mNEXT_POINT", 3: "mROTATE", 
+                        # 4: "mPOINT"  5: "mPAUSE", 6: "mCONTINUE"
+                        #
+                        # self.deggen - объект-генератор
+                        # self.nextpoint - очередное значение от генератора
+                        # self.counter_point - счетчик пройденных точек. Ключи словаря объектов svg кружков-точек -- числа по порядку
+                        # self.total_point - для определения одного оборота
+                        # self.degpos - текущий угол поворота 
+
+            elif s == "RUN_AUTO":
+                   
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 1-mGET_CORO
+                if self.substate == 1:
+                        # получаю генератор списка градусов
+                        # переход в подсостояние получения очередной точки от генератора 
+                    self.deggen = self.next_deg()
+                    self.substate = 2
+                 
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 2-mNEXT_POINT
+                elif self.substate == 2:
+                    # получаю от генератора угол на который нужно провернуться
+                    # в блоке трай ловлю СтопИтерейшн конца генератора, если генератор иссяк,
+                    # то это конец программы и переход в подсостояние 0, потом в макросостояние STOP 
+                    
+                    try:
+                        self.nextpoint = next(self.deggen)
+                        self.degpos = 0.0
+                        self.counter_point += 1
+                        self.total_point += self.nextpoint
+
+                        if self.total_point >= 360:
+                            self.counter_point = 0
+
+                            # взятие нового времени для отсчета
+                        self.timer = time.time()
+                        self.substate = 3
+                        self.lcd.clean()
+                    except StopIteration:
+                        self.substate = 0
+
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 3-mROTATE
+                elif self.substate == 3:
+                    self.lcd.write("В РАБОТЕ", 2)
+                    self.lcd.write(f"тек. положение: {round(self.degpos, 2)}", 5)
+
+                        # по истечении малого промежутка времени прибавить в углу поворота значение 
+                        # такая анимация
+                    if (time.time() - self.timer) >= 0.005:
+                        self.motor.degstep = 0.4
+                        self.degpos += 0.4
+                        
+                        # если находимся в пределах центра точки, то перекрашиваем точку в зеленый
+                        # и это значит пауза. переходим в подсостояние ожидания нажатия на пункте меню, которое
+                        # вызовет метод перевода в подсостояние № 2. И так по кругу, пока жив генератор.
+                        
+                    if (self.nextpoint-0.5 <= self.degpos <= self.nextpoint+0.5):
+                        self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
+                        self.lcd.clean()
+                        self.substate = 4
+
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 4-mPOINT
+                elif self.substate == 4:
+                    
+                    for k in dsp["text"]:
+                        self.lcd.write(dsp["text"][k], k)
+                    navigate, field_sett = self.get_nav(s)    
+                    self.lcd.write(navigate, 8)
+                    self.lcd.write(f"{'\u00A0'*9}ПАУЗА.", 4)
+
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 
+                elif self.substate == 0:
+                    self.state = 7
+                    
+                     
+            # --------------------------------> STOP state       
+            elif s == "STOP":
+                self.lcd.clean()
+                self.total_point = 0
+                self.counter_point = 0
+
+                self.degpos = self.get_value_rotate()
+
+                self.nextpoint = 0
+                self.deggen = None
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                navigate, field_sett = self.get_nav(s) 
+                self.lcd.write(navigate, 8)               
+
 
                 # void loop()
             window.setTimeout(self.run)
@@ -990,9 +1142,28 @@
 
 
 
+        def next_deg(self) -> Generator:
+            """Вернет объект-генератор списка частей окружности."""
+
+            if self.groupdegs:
+                for value in self.groupdegs:
+                    yield value
+
+
+        def get_value_rotate(self) -> float:
+            """Вернуть положение вала, положение отщемляем от атрибута transform (rotate) svg.
+               Без этого не коpректно расчитываются координаты точек после 1-го
+               прохода. Присваеваем возвр. значение self.degpos в теле elif state->STOP"""
+
+            str_rotate: str = self.motor.id.attrs["transform"]
+            deg = str_rotate[str_rotate.find('(')+1 : str_rotate.rfind(')')]
+            return float(deg)
+
+        # --------------------------------------------------------------------------------------------------
+
         def apply(self) -> None:
             """Применить после второго нажатия на колесо при редактировании. 
-              Для всех работает одиноково (т-е индивидуальности не требуется)."""
+              Для всех работает одинаково (т-е индивидуальности не требуется)."""
 
             self.displays[self.enum_state.get(self.state)]["navigate"] = True
             self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.stackpush
@@ -1024,14 +1195,16 @@
 
         def change_vman(self) -> None:
             """настройки SETTING скорость в ручн. режиме
-               СОБЫТИЯ ВРАЩЕНИЯ КОЛЕСА МЫШИ"""
+               СОБЫТИЯ ВРАЩЕНИЯ КОЛЕСА МЫШИ. """
 
             self.vman += self.encoder.around_direction
+           
 
 
         def rotate_val_man_mode(self) -> None:
             """Замененный метод на вращение колеса мыши. 
-                Вращаем енкодер - вращается вал."""
+                Вращаем енкодер - вращается вал.
+                rgba(137, 17, 173, 0.7) - син. rgb(0, 147, 49) - зел"""
             
             self.motor.degstep = self.encoder.around_direction * self.vman
             self.degpos = self.motor.degstep
@@ -1039,7 +1212,7 @@
                 self.degpos = 0
             elif self.degpos <= 0:
                 self.degpos = 360-abs(self.motor.degstep)
-    
+            
                  
         
         def count_field_equally(self) -> None:
@@ -1092,18 +1265,42 @@
             self.state = 4
             self.nav = 1
             self.lcd.clean()
-            # тут вызов рисовалки
-            self.motor.create_points(self.amount)
-            
+           
+                # тут вызов рисовалки
+            self.motor.create_points(self.amount, self.degpos)
+                # добавление в self.groupdegs значений углов
+            self.groupdegs.extend([self.total_sum for _ in range(self.amount)])
+           
 
+        # ..............................................................
 
         def start_head(self) -> None:
-            pass
+            self.state = 5
+            self.substate = 1
+            self.nav = 1
+            self.lcd.clean()
+
 
         def stop_head(self) -> None:
                 # удалить точки
             self.motor.delete_points()
+                # очистить self.groupdegs
+            self.groupdegs.clear()
+                # state = BEGIN
             self.st_mtd_sett_yes()
+
+
+        def cancel(self) -> None:
+            self.substate = 0
+            self.nav = 1
+           
+
+        def continue_head(self) -> None:
+            if self.substate == 4:
+                self.substate = 2
+
+
+        # ................................................................
 
         def manual_mode(self) -> None:
             """После нажатия и удержания кнопки ручного режима.
@@ -1364,7 +1561,17 @@
 
         @degpos.setter
         def degpos(self, value: float) -> None:
-            self._deg_pos = float(value) 
+            self._deg_pos = value if type(value) is float else float(value) 
+
+
+        @property
+        def nextpoint(self) -> float:
+            """Следующее значение градусов в списке self.groupdegs"""
+            return self._next_point
+
+        @nextpoint.setter
+        def nextpoint(self, value: float) -> None:
+            self._next_point = value if type(value) is float else round(float(value), 3)
 
 
         @property
