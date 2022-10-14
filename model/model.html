@@ -71,9 +71,16 @@
         }
     .bcontent {
         clear: both;
-        width: 97%;
-        padding: 20px 20px;
-        border: 1px solid rgba(52, 216, 65, 0.493);
+        margin: 0 auto;
+        padding: 50px 0;
+        width: 95%;
+    }
+    .ttl {
+        text-align: center;
+        padding: 2px 0;
+        background-color: #c3cfe267; 
+        border: 1px solid #c3cfe2;
+        
     }
     .start{
         box-shadow:inset 0px 1px 0px 0px #9acc85;
@@ -142,8 +149,36 @@
     .suply button {
         margin: 0 10px;
     } 
-    
+    pre{
+        margin: 20px 0;
+        width: 100%;
+    }
+    .bld {
+        font-weight: normal;
+        color: rgb(110, 65, 6);
+    }
+    .table {
+	width: 100%;
+    margin: 50px auto;
+	border: 1px solid #dddddd;
+	border-collapse: collapse; 
+    }
+    .table th {
+        font-weight: bold;
+        padding: 5px;
+        background: #efefef;
+        border: 1px solid #dddddd;
+    }
+    .table td {
+        border: 1px solid #dddddd;
+        padding: 5px;
+    }
+
     </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/shades-of-purple.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
     </head>
 
     <body onload="brython(1)"> 
@@ -283,7 +318,106 @@
     </div>
     <!--  -->
     <div class="bcontent">
-    
+    <div class="ttl"><h2>описание работы скрипта:</h2></div>   
+    <!-- <pre><code class="python">
+        
+        </code></pre>
+        <p>Задает во всех объектaх модулей объект чипа ATMega. [mega = None]"""</p> 
+        <span class="bld"> </span>     -->
+    <p>Скрипт написан на python3. Его обработкой и трансляцией в javascript занимается <a href="https://brython.info/">Brython</a>,  который подгружаем в теле тега <span class="bld"> head</span>, там же подгружаем штуку для подсвечивания кода highlight. </p>
+    <p>SVG объекты нарисованы в программе <a href="https://boxy-svg.com/">boxy-svg</a>
+        это приложение для браузера chrome. 
+    </p> 
+    <p>
+        В левом <span class="bld">div class="lcontent" </span>  расположен один svg <span class="bld">viewBox </span>, в котором расположены объекты двигателя,
+        корпуса редуктора, вала. Вал серо-синего цвета. К валу в программе применяется <span class="bld"> transform: rotate(deg).</span>
+        Вал <span class="bld">(path) </span> вложен в группу <span class="bld">g id="val" transform-origin="82 81". </span> Центр объекта (группы g) вала вокруг которого он будет вращаться
+        находим следующей функцией:
+        <pre><code class="python">
+        def get_center(svg_id: str) -> tuple:
+            """ Принимает id svg объектa. Возвращает
+                координаты x, y центра объектa."""
+            
+            bb = document[svg_id].getBBox()
+            return (int(bb.x + bb.width / 2), int(bb.y + bb.height / 2))
+            
+        print(get_center("val"))
+        </code></pre>
+        Выведенные значения кортежа в консоли нужно записать в  <span class="bld">transform-origin </span>. Всегда нужно находить и задавать центр той фигуры, которую нужно вращать, иначе она будет вращаться вокруг центра общей системы координат.
+    </p>   
+     <p>Масштаб фигур  <span class="bld">svg width="450" height="350" viewBox="0 0 250 150"</span> подбираем опытным путем с разницей 200 пикселей, т-е ширина и высота на 200px больше <span class="bld">width height viewBox</span>, а <span class="bld">min-x min-y viewBox</span> - нули. </p>  
+     <table class="table" style="width: 45%;">
+        <caption>id svg объектов мотор-редуктора:</caption>
+        <thead>
+            <tr>
+                <th>объект</th>
+                <th>id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>вал</td>
+                <td>"val"</td>
+            </tr>
+            <tr>
+                <td>редуктор + вал + кругляк(группа g)</td>
+                <td>"servo"</td>
+            </tr>
+            <tr>
+                <td>кругляк вокруг вала</td>
+                <td>"limb"</td>
+            </tr>
+        </tbody>
+     </table>
+
+    <p>Cправа вo <span class="bld">div class="rcontent" </span> у нас второй svg вьюбокс, в него вложен третий вьюбокc руки над кнопкой.
+     Во втором находятся енкодер - составной объект, дисплей - прямоугольник. Оба внутри тега своей группы. Енкодер состоит из пути <span class="bld">path</span> - это ручка с зубцами, линии и внутренней декоративной окружности.
+     Путь <span class="bld">path</span> имеет свой <span class="bld">id="encoder-svg" </span> для доступа к его атрибуту <span class="bld">style="stroke: rgb(0, 0, 0); </span> для смены цвета по наведении указателя мыши.
+     Ручка имеет свой <span class="bld">id="encoder" </span> и <span class="bld"> transform-origin="77 73"</span> центр для вращения по наведении указателя мыши. 
+    </p>
+    <p>
+        К ручке енкодера и руки над кнопкой применены градиенты созданные в программе. Бывает такое что градиент не применяется. Нужно сменить id svg тега <span class="bld">radialGradient </span> на что-то уникальное, и измененный id заменить в атрибуте <span class="bld">style: fill </span> окрашиваемого объектa.
+    </p>
+    <p>Линия-маркер находится в группе ручки, поэтому вращается вместе с ней.</p>
+
+    <table class="table" style="width: 45%;">
+        <caption>id svg объектов енкодера, дисплея и руки:</caption>
+        <thead>
+            <tr>
+                <th>объект</th>
+                <th>id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>группа ручки и линии</td>
+                <td>"encoder"</td>
+            </tr>
+            <tr>
+                <td>обводка ручки</td>
+                <td>"encoder-svg"</td>
+            </tr>
+            <tr>
+                <td>дисплей группа</td>
+                <td>"lcd"</td>
+            </tr>
+            <tr>
+                <td>рука над кнопкой</td>
+                <td>"hand-push"</td>
+            </tr>
+            <tr>
+                <td>полумесяц под рукой</td>
+                <td>"lamp-push"</td>
+            </tr>
+            <tr>
+                <td>текст над рукой</td>
+                <td>"text-hand-push"</td>
+            </tr>
+        </tbody>
+     </table>
+    <p>Полумесяц под рукой меняет цвет в состоянии имитации нажатия и удержании кнопки "вращать ручн.".</p>
+
+
 
     </div>
     </section>   
@@ -341,7 +475,6 @@
         def mega(self, obj) -> None:
             self._mega = obj
       
-
 
 
     class Display(Component):
@@ -1099,7 +1232,7 @@
                         # если находимся в пределах центра точки, то перекрашиваем точку в зеленый
                         # и это значит пауза. переходим в подсостояние ожидания нажатия на пункте меню, которое
                         # вызовет метод перевода в подсостояние № 2. И так по кругу, пока жив генератор.
-                        
+
                     if (self.nextpoint-0.5 <= self.degpos <= self.nextpoint+0.5):
                         self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
                         self.lcd.clean()
