@@ -78,9 +78,11 @@
     .ttl {
         text-align: center;
         padding: 2px 0;
+        
+        margin-bottom: 50px;
         background-color: #c3cfe267; 
         border: 1px solid #c3cfe2;
-        
+        border-radius: 9px;
     }
     .start{
         box-shadow:inset 0px 1px 0px 0px #9acc85;
@@ -154,7 +156,8 @@
         width: 100%;
     }
     .bld {
-        font-weight: normal;
+        font-weight: bold;
+        font-size: 0.9em;
         color: rgb(110, 65, 6);
     }
     .table {
@@ -176,7 +179,7 @@
 
     </style>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/shades-of-purple.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/idea.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
 	<script>hljs.initHighlightingOnLoad();</script>
     </head>
@@ -318,12 +321,8 @@
     </div>
     <!--  -->
     <div class="bcontent">
-    <div class="ttl"><h2>описание работы скрипта:</h2></div>   
-    <!-- <pre><code class="python">
-        
-        </code></pre>
-        <p>Задает во всех объектaх модулей объект чипа ATMega. [mega = None]"""</p> 
-        <span class="bld"> </span>     -->
+    <div class="ttl"><h2>ОПИСАНИЕ РАБОТЫ СКРИПТА. Графика.</h2></div>   
+   
     <p>Скрипт написан на python3. Его обработкой и трансляцией в javascript занимается <a href="https://brython.info/">Brython</a>,  который подгружаем в теле тега <span class="bld"> head</span>, там же подгружаем штуку для подсвечивания кода highlight. </p>
     <p>SVG объекты нарисованы в программе <a href="https://boxy-svg.com/">boxy-svg</a>
         это приложение для браузера chrome. 
@@ -343,7 +342,7 @@
             
         print(get_center("val"))
         </code></pre>
-        Выведенные значения кортежа в консоли нужно записать в  <span class="bld">transform-origin </span>. Всегда нужно находить и задавать центр той фигуры, которую нужно вращать, иначе она будет вращаться вокруг центра общей системы координат.
+        Вызов функции <span class="bld">print(get_center("val")) </span>  произвести в глобальной области видимости. Выведенные значения кортежа в консоль браузера нужно записать в  <span class="bld">transform-origin </span> объекта. Если такого атрибута нет, создать. Всегда нужно находить и задавать центр той фигуры, которую нужно вращать, иначе она будет вращаться вокруг центра общей системы координат.
     </p>   
      <p>Масштаб фигур  <span class="bld">svg width="450" height="350" viewBox="0 0 250 150"</span> подбираем опытным путем с разницей 200 пикселей, т-е ширина и высота на 200px больше <span class="bld">width height viewBox</span>, а <span class="bld">min-x min-y viewBox</span> - нули. </p>  
      <table class="table" style="width: 45%;">
@@ -373,7 +372,7 @@
     <p>Cправа вo <span class="bld">div class="rcontent" </span> у нас второй svg вьюбокс, в него вложен третий вьюбокc руки над кнопкой.
      Во втором находятся енкодер - составной объект, дисплей - прямоугольник. Оба внутри тега своей группы. Енкодер состоит из пути <span class="bld">path</span> - это ручка с зубцами, линии и внутренней декоративной окружности.
      Путь <span class="bld">path</span> имеет свой <span class="bld">id="encoder-svg" </span> для доступа к его атрибуту <span class="bld">style="stroke: rgb(0, 0, 0); </span> для смены цвета по наведении указателя мыши.
-     Ручка имеет свой <span class="bld">id="encoder" </span> и <span class="bld"> transform-origin="77 73"</span> центр для вращения по наведении указателя мыши. 
+     Ручка имеет свой <span class="bld">id="encoder" </span> и <span class="bld"> transform-origin="77 73"</span> центр для вращения по наведении указателя мыши и вращении колесика мышки. 
     </p>
     <p>
         К ручке енкодера и руки над кнопкой применены градиенты созданные в программе. Бывает такое что градиент не применяется. Нужно сменить id svg тега <span class="bld">radialGradient </span> на что-то уникальное, и измененный id заменить в атрибуте <span class="bld">style: fill </span> окрашиваемого объектa.
@@ -417,11 +416,326 @@
      </table>
     <p>Полумесяц под рукой меняет цвет в состоянии имитации нажатия и удержании кнопки "вращать ручн.".</p>
 
+    <div class="ttl"><h2>Объектная модель.</h2></div>
+     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="1400" height="1200" viewBox="60 263 1550 1450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="Фон">
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="198" y="364.5" width="248.7" height="28"/>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="322.35" y="383.352">Component</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="198" y="392.5" width="248.7" height="36"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="201" y="406.381">#_mega: ATMega = None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="201" y="422.381">+mega: @property</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="198" y="428.5" width="248.7" height="20"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="201" y="442.381">+&lt;&lt;конструктор&gt;&gt; __init__(self)</text>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="198,466.736 198,495.25 301.922,495.25 301.922,555.601 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="206,466.736 198,450.736 190,466.736 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="12.0223" y="556.604" width="579.8" height="28"/>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="301.922" y="575.456">Display</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="12.0223" y="584.604" width="579.8" height="212"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="598.485">#_mega: ATMega = None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="614.485">#_id_lcd: &lt;SVGGElement id="lcd"&gt;</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="630.485">#_size_char: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="646.485">#_line_height: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="662.485">#_x: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="678.485">#_y: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="694.485">#_width: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="710.485">#_height: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="726.485">#_first_line_coord: tuple</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="742.485">#_max_lines: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="758.485">#_lines_coords: dict</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="774.485">#_svg_lines: dict</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="790.485">#_max_len: int</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="12.0223" y="796.604" width="579.8" height="84"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="810.485">+&lt;&lt;конструктор&gt;&gt; __init__(self,id_svg:str,size_char:int,line_height:int=2)</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:italic;font-weight:normal" x="15.0223" y="826.485">-__get_lines_coords(self): dict</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:italic;font-weight:normal" x="15.0223" y="842.485">-__get_coords_first_line(self): tuple</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="858.485">+ write(self,wtext:str,line:int): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="15.0223" y="874.485">+clean(self,line:int=None): None</text>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="301.922,899.85 301.922,937.605 228.622,937.605 228.622,977.596 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="309.922,899.85 301.922,883.85 293.922,899.85 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="8.0223" y="978.604" width="441.2" height="28"/>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="228.622" y="997.456">Lcd</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="8.0223" y="1006.6" width="441.2" height="52"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1020.49">+id: @property</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1036.49">+strlen: @property</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1052.49">#_mega: ATMega</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="8.0223" y="1058.6" width="441.2" height="52"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1072.49">+&lt;&lt;конструктор&gt;&gt; __init__(self,id_svg:str,size_char:int)</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1088.49">+on_power(self): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="11.0223" y="1104.49">+off_power(self): None</text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="489.532" y="982.344" width="479.7" height="28"/>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="729.382" y="1001.2">Encoder</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="489.532" y="1010.34" width="479.7" height="116"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1024.22">+deg_step: @property</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1040.22">+total_deg: @property</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1056.22">+around_direction: int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1072.22">+navigator: list</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1088.22">#_mega: ATMega = None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1104.22">#_id: SVGGElement</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1120.22">#_path_id: SVGPathElement</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="489.532" y="1126.34" width="479.7" height="68"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1140.22">+&lt;&lt;конструктор&gt;&gt; __init__(id_encoder:str,id_encoder_path:str)</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1156.22">+&lt;&lt;обработчик событий&gt;&gt; wheel(self,e): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1172.22">+&lt;&lt;обработчик событий&gt;&gt; select_encoder(self,e): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="492.532" y="1188.22">+&lt;&lt;обработчик событий &gt;&gt; click_wheel(self,e): None</text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="764.043" y="690.954" width="756.9" height="28"/>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1142.49" y="709.805">Motor</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="764.043" y="718.954" width="756.9" height="148"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="732.835">+id: @property = SVGGElement</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="748.835">+limb: @property = SVGCircleElement</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="764.835">+degstep: @property = int</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="780.835">+points: dict = dict()</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="796.835">+text_deg_point: list = list()</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="812.835">+gservo: SVGGElement</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="828.835">+arrow_line: SVGLineElement = None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="844.835">#_mega: ATMega = None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="860.835">#_total_d: float = 0</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="764.043" y="866.954" width="756.9" height="68"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="880.835">+&lt;&lt;конструктор&gt;&gt; __init__(self,id_val:str,id_limb:str)</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="896.835">+&lt;&lt;создает кружки/текст вокруг вала&gt;&gt; create_points(self,num_points:int,deg_pos:float=None): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="912.835">+&lt;&lt;удаляет кружки вокруг вала&gt;&gt; delete_points(self): None</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="767.043" y="928.835">+null_position(self): None</text>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="322.35,467.728 322.35,496.23 729.382,496.23 729.382,981.352 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="330.35,467.728 322.35,451.728 314.35,467.728 "/>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="465.93,406.5 1066.89,406.5 1066.89,688.309 1060.89,688.309 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="465.93,398.5 449.93,406.5 465.93,414.5 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="228.895" y="1307.81" width="525.9" height="156"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:monospace;font-style:normal;font-weight:normal" x="491.845" y="1323.69">&lt;&lt;Микроконтроллер&gt;&gt;</text>
+      <text font-size="16" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="491.845" y="1342.66">ATMega</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1358.2">Список атрибутов</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1372.2">и методов</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1386.2">слишком длинный,</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1400.2">чтобы описывать</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1414.2">их здесь.</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1428.2">Описание будет</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1442.2">отдельно в</text>
+      <text font-size="11.2" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="491.845" y="1456.2">таблице.</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="228.895" y="1463.81" width="525.9" height="68"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1477.69">+lcd: @property = __main__.Lcd object</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1493.69">+encoder: @property = __main__.Encoder object</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1509.69">+motor: @property = __main__.Motor object</text>
+      <text xml:space="preserve" font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1525.69"> . . .</text>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="228.895" y="1531.81" width="525.9" height="52"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1545.69">+&lt;&lt;конструктор&gt;&gt; __init__(self,lcd:Lcd,encoder:Encoder,motor:Motor)</text>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1561.69">+&lt;&lt;Пуск машины состояний&gt;&gt; run(self): None</text>
+      <text xml:space="preserve" font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="231.895" y="1577.69"> . . .()</text>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="412.649,1278.8 412.649,1199.38 149.426,1199.38 149.426,1108.78 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="412.649,1303.97 407.849,1289.97 412.649,1275.97 417.449,1289.97 "/>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="491.845,1281.63 491.845,1244.08 729.382,1244.08 729.382,1195.35 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="491.845,1306.8 487.045,1292.8 491.845,1278.8 496.645,1292.8 "/>
+    </g>
+    <g>
+      <polyline style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" points="779.967,1385.81 1025.41,1385.81 1025.41,938.582 1021.16,938.582 "/>
+      <polygon style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="754.795,1385.81 768.795,1381.01 782.795,1385.81 768.795,1390.61 "/>
+    </g>
+  </g>
+</svg>
+
+    <p>
+        По UML диаграмме можно рассмотреть некоторое сходство с поведенческим паттерном "Посредник (Mediator)". Мне было необходимо, чтобы между главным объектом класса ATMega и объектами-компонентами (дисплей, мотор, енкодер) была двусторонняя связь и при этом общаться каждый из объектов-компонентов должен был только с ATMega.
+        Как в реальности - дисплей не может ничего передать драйверу шагового мотора и наоборот без микроконтроллера. Енкодер может послать импульсы драйверу, но не надо. В отличии от классической структуры паттерна, в этой структуре я не добавлял интерфейс, т-к посчитал излишним конкретно для этого скрипта. 
+    </p>
+    <p>
+        Все классы компонентов (дисплей, мотор, енкодер) наследуют от класса <span class="bld"> Component</span> свойства <span class="bld">@property</span>, это будут ссылки на объект ATMega с начальным значением <span class="bld">None</span>. 
+        Сначала создаются объекты-компоненты (дисплей, мотор и пр), ссылки этих объектов передаются как аргументы конструктору ATMega:</p>
+    <pre><code class="python">
+        lcd_display = Lcd("lcd", 12)
+        man_encoder = Encoder("encoder", "encoder-svg")
+        motor = Motor("val", "limb")
+        controller = ATMega(lcd_display, man_encoder, motor)
+    </code></pre>
+    <p>
+        В конструкторе <span class="bld">__init__</span> ATMega значения параметров присваиваются атрибутам-свойствам (вызываются <span class="bld">@property.setter</span>) методы. 
+    </p> 
+    <pre><code class="python">
+        def __init__(self, lcd: Lcd, encoder: Encoder, motor: Motor) -> None:
+            self.lcd = lcd
+            self.encoder = encoder
+            self.motor = motor
+            . . .
+    </code></pre>        
+    <p>Вот структура геттеров и сеттеров для работы с объектами-компонентами (дисплей, мотор итд:)</p>
+    <pre><code class="python">
+        @property
+        def motor(self) -> Motor:
+            return self._motor
+
+        @motor.setter   
+        @inject
+        def motor(self, obj) -> None:
+            self._motor = obj 
+    </code></pre>
+    <p>Как видно сеттер оборачивает декоратор-функция <span class="bld">@inject</span>. Я решил так сделать, чтобы убрать дублирующийся код. Из комментария декоратора можно подумать что порядок вызова декорируемого метода и присваивания ссылки объекта ATMega атрибуту объектов-компонентов имеет значение. Порядок не имеет значения, просто таков был ход моей мысли.</p>
+    <pre><code class="python">
+        def inject(method_setter: Callable) -> Callable:
+            """Декоратор для сеттеров. Внедряет объект ATMega в объект каждой компоненты
+            до присваивания соотв. атрибута экземпляра ATMega. """
+        
+            @wraps(method_setter)
+            def wrapper(self, obj) -> None:
+                obj.mega = self
+                method_setter(self, obj)
+            
+            return wrapper
+    </code></pre>
+    <p>Теперь объект <span class="bld">controller</span> имеет доступ к каждому из объектов, переданному его конструктору  и каждый из этих переданных объектов имеет также доступ только к контроллеру.</p>
+    <div class="ttl"><h2>class Display(Component):</h2></div>
+    <!-- {'__thisclass__': <class '__main__.Display'>, '__self_class__': <__main__.Lcd object>} -->
+    <p>Класс <span class="bld">Display</span> потомок класса <span class="bld">Component</span>.
+        Для работы с дисплеем у меня 2 класса: этот родительский и его потомок класс <span class="bld">Lcd</span>. От этого мне нужно чтобы SVG прямоугольник-дисплей при изменении своего размера или координат
+        не искажал каким либо образом "записанную" в него текстовую информацию. Т-е текст на дисплее всегда был на своем месте независимо от положения или размеров прямоугольника-дисплея. Единственное что, например при  
+        расширении дисплея, увеличится кол-во строк (если увеличивать высоту) и/или длинна строки (если увеличивать ширину). Поэтому в конструктор при создании объекта передается помимо id SVG дисплея, еще и размер шрифта. Также от 
+        этого класса нужна информация о кол-ве строк и длинны строки. Еще здесь реализованы метод вывода на дисплей строк (создание объектов SVGTextElement текста и их добавление в структуру SVG), метод очистки всего экрана (или № строки) дисплея (удаление SVGTextElement объектов текста из SVG cтруктуры). 
+        В этом классе нет <span class="bld">property</span> свойств, кроме <span class="bld">self.mega</span>. Объекты-свойства будут в классе <span class="bld">Lcd</span> + унаследованный отсюда функционал.
+    </p>
+    <pre><code class="python">
+    class Display(Component):
+        '''Родительский класс дисплея. Делает закулисную грязную работу. Будет
+           вычислять атрибуты: число строк, длинна строки, координаты начала строки
+           размеры дисплея...'''
+
+        
+        def __init__(self, id_svg: str, size_char: int, line_height=2) -> None:
+            super().__init__()
+            
+                # объект svg <g> дисплея
+            self._id_lcd = document[id_svg]
+
+                # размер шрифта (высота символа) в пикселях. т-е число int это размер в пикселях.
+            self._size_char = size_char
+
+                # межстрочный интервал px
+            self._line_height = line_height
+            
+                # cоздаю атрибуты из полученных данных от getBBox():
+                # self._x, self._y -- координаты фигуры 
+                # self._width, self._height -- ширина, высота фигуры
+
+            for name_attr, value_attr in dict(self._id_lcd.getBBox()).items():
+                super().__setattr__("_" + name_attr, value_attr)
+            
+                # координаты первой строки
+            self._first_line_coord: tuple = self.__get_coords_first_line()
+
+                # макс. число строк с учетом высоты символа + межстрочного интевала
+            self._max_lines: int = self._height // (self._size_char+self._line_height)
+
+                # словарь {№строки : координата Y}
+            self._lines_coords: dict = self.__get_lines_coords()
+                
+                # словарь обЪектов строк. Строки добавляются в write()
+            self._svg_lines: dict = dict()
+
+                # макс. длинна строки (символов). 4 - от балды взято (на самом деле с 4 расчет более-менее правильный)
+            self._max_len: int = (self._width + self._first_line_coord[0]) // (self._size_char + 4)
+            
+
+        # ---------------------------------------------------------------------------------------------------
+
+        def __get_lines_coords(self) -> dict:
+            """Возвращает словарь с вычисленными координатами (X, Y) начала
+               всех влезаемых в дисплей строк"""
+
+            x, y = self._first_line_coord
+            d: dict = dict()
+            for i in range(1, self._max_lines+1):
+                d[i] = (x, y)
+                y += self._size_char + self._line_height
+            return d
+        
+        
+        def write(self, wtext: str, line: int) -> None:
+            """Записать текст по номеру строки line.
+               Создаются строки как svg объекты."""
+
+            try:
+                if (1 <= line <= self._max_lines):
+                    crdX, crdY = self._lines_coords[line]
+
+                        # если такой номер строки существует, то чистим ее и создаем новую.
+                    if line in self._svg_lines:
+                        self.clean(line)
+
+                    svgNS = "http://www.w3.org/2000/svg"
+                    newline = document.createElementNS(svgNS, "text")
+                    newline.setAttributeNS(None, "id", f"{line}-line")
+                    newline.setAttributeNS(None, "style", f"fill: rgb(51, 51, 51); font-family: monospace; font-size: {self._size_char}px;")
+                    newline.setAttributeNS(None, "x", f"{crdX}")
+                    newline.setAttributeNS(None, "y", f"{crdY}")
+
+                        # если длинна строки больше максимально допустимой, то записываю только часть строки == макс. длинны
+                    newline.textContent = wtext if (0 < len(wtext) <= self._max_len) else wtext[: self._max_len]       
+                    
+                    self._id_lcd.appendChild(newline)
+                    self._svg_lines[line] = newline
+                else:
+                    raise ValueError("Не корректный номер строки. Ошибка.")
+            except ValueError as ve:
+                print(ve)
+            except TypeError as te:
+                print("Ошибка, не числовое значение line", te)
 
 
+
+        def clean(self, line=None) -> None:
+            """Очистка экрана. если вызвать метод без параметров
+               то чистится все табло. """
+
+            if line is None:
+                if self._svg_lines:
+                    for k, v in self._svg_lines.items():
+                        self._id_lcd.removeChild(v)
+                    self._svg_lines.clear()
+            else:
+                self._id_lcd.removeChild(self._svg_lines[line])
+
+
+
+        def __get_coords_first_line(self) -> tuple:
+            """Возвращает координаты первой строки с 
+               учетом высоты символа  и межстрочного интевала"""
+
+            return (self._x+5, self._y+self._size_char+self._line_height)
+    </code></pre>
+    <p>
+        В конструктор передается строки <span class="bld">id SVG прямоугольника дисплея</span>, размер символа (размер шрифта) <span class="bld">size_char: int</span> и параметр по умолчанию <span class="bld">line_height=2</span> интервал между строками.
+        Вызывается конструктор суперкласса явно (хотя можно было и не писать). 
+    </p>
+    
+    
+    
     </div>
     </section>   
 
+     <!-- <pre><code class="python">
+        
+        </code></pre>
+        <p>Задает во всех объектaх модулей объект чипа ATMega. [mega = None]"""</p> 
+        <span class="bld"></span>     -->
     
     <script type="text/python">
 
@@ -480,13 +794,12 @@
     class Display(Component):
         '''Родительский класс дисплея. Делает закулисную грязную работу. Будет по id svg объекта
            вычислять атрибуты: число строк, длинна строки, координаты начала строки
-           размеры дисплея... короче чтобы не париться, а нарисованный/перемещенный 
-           дисплейчик без страданий можно было юзать.'''
+           размеры дисплея...'''
 
         
         def __init__(self, id_svg: str, size_char: int, line_height=2) -> None:
             super().__init__()
-
+            
                 # объект svg <g> дисплея
             self._id_lcd = document[id_svg]
 
@@ -517,7 +830,7 @@
 
                 # макс. длинна строки (символов). 4 - от балды взято (на самом деле с 4 расчет более-менее правильный)
             self._max_len: int = (self._width + self._first_line_coord[0]) // (self._size_char + 4)
-
+            
 
         # ---------------------------------------------------------------------------------------------------
 
@@ -670,6 +983,7 @@
 
                 # Обработчик события при нажатия на колесико мыши на енкодер.
             self._id.bind("mousedown", self.click_wheel)
+            
 
 
         @property
@@ -778,7 +1092,7 @@
             self._limb = document[id_limb]
 
                 # на сколько градусов провернут вал
-            self._total_d: int = 0
+            self._total_d: float = 0
 
                 # намеченные точки вокруг вала
             self.points: dict = dict()
@@ -789,7 +1103,7 @@
                 # g группа для точек
             self.gservo = document["servo"]
             self.arrow_line = None
-
+            
         # ------------------------------------------------------------------------------
         
         def create_points(self, num_points: int , deg_pos: float = None) -> None:
@@ -959,7 +1273,7 @@
            Модель классов напоминает паттерн 'Посредник', 
            только без интерфейса. Этот в роли посредника."""
 
-        def __init__(self, lcd: Lcd, encoder: Encoder, motor: Motor):
+        def __init__(self, lcd: Lcd, encoder: Encoder, motor: Motor) -> None:
             self.lcd = lcd
             self.encoder = encoder
             self.motor = motor
@@ -1086,7 +1400,7 @@
                          "navigate": True
                 }
             }
-
+           
         # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 
         def run(self) -> None:
@@ -1753,7 +2067,7 @@
 
         
     # ------------------------------- main --------------------------------------------------------------------
-
+    
     lcd_display = Lcd("lcd", 12)
     man_encoder = Encoder("encoder", "encoder-svg")
     motor = Motor("val", "limb")
@@ -1762,7 +2076,7 @@
     @bind(document["power-on"], "click")
     def start_rotate(e):
         controller.lcd.on_power()
-        
+     
 
     @bind(document["power-off"], "click")
     def stop_rotate(e):
@@ -1773,7 +2087,7 @@
     def man_mode(e):
         b = controller.is_man_mode 
         controller.is_man_mode = not b
-   
+    
     </script>
       
     </body>
