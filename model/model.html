@@ -59,7 +59,7 @@
     .svg-obj .rcontent {
         margin: 20px 0;
         padding: 20 10px;
-        width: 650px;
+        width: 695px;
         height: 450px;
         border: 1px solid rgba(72, 114, 230, 0.493);
         float: left; 
@@ -160,11 +160,45 @@
         font-size: 0.9em;
         color: rgb(110, 65, 6);
     }
+    .declaration {
+        border: 1px dashed rgb(194, 187, 187);
+        margin-bottom: 50px;
+        padding: 8px 10px;
+    }
+    .declaration h1 {
+        text-align: center;
+        background-color: #efefef;
+    }
+    .declaration h3 {
+        text-align: center;
+        background-color: #b5e6a0ce;
+    }
+    .about-code {
+        padding: 40px 20px;
+        font-size: 0.8em
+    }
+    .about-code h1 {
+        text-align: center;
+        padding-bottom: 30px;
+        font-size: 2.4em;
+        font-weight: normal;
+        border-bottom: 1px solid black;
+    }
+    .about-code ul {
+          padding-left: 60px;
+          list-style: square;
+    }
+    .about-code ul li{
+        padding: 5px 0;
+    }
+    .about-code ul li a{
+        font-size: 1.3em;
+    }
     .table {
-	width: 100%;
-    margin: 50px auto;
-	border: 1px solid #dddddd;
-	border-collapse: collapse; 
+        width: 100%;
+        margin: 50px auto;
+        border: 1px solid #dddddd;
+        border-collapse: collapse; 
     }
     .table th {
         font-weight: bold;
@@ -186,7 +220,7 @@
 
     <body onload="brython(1)"> 
     <header>
-        <h1 class="title">Модель делительной головки для станка</h1>
+        <h1 class="title">Модель-программа устройства делительной головки для станка</h1>
         <div class="about"> 
             <svg height="42" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="42"        data-view-component="true" class="octicon octicon-mark-github v-align-middle">
             <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
@@ -314,14 +348,106 @@
           <!--  -->
           
           <div class="suply">
-            <button class="start" id="power-on">включить</button>
-            <button class="stop" id="power-off">отключить</button>
-            <button id="man-mode">вращать ручн.</button>
+            <button class="start" id="power-on" disabled>включить</button>
+            <button class="stop" id="power-off" disabled>отключить</button>
+            <button id="man-mode" >вращать ручн.</button>
           </div>
     </div>
     <!--  -->
     <div class="bcontent">
-    <div class="ttl"><h2>ОПИСАНИЕ РАБОТЫ СКРИПТА. Графика.</h2></div>   
+    <div class="declaration">
+        <h1>Как пользоваться</h1>
+        <p>Для нормальной работы программы нужно, чтобы устройство, на коротом открыт этот html файл, было подключено к сети интернет (документ загружает из сети транслятор python - Brython и скрипт подсветки кода), а также к устройству должна быть подсоединена мышь (т-к программа работает как симулятор управления электронным устройством енкодером вместо кнопок).
+            У меня нормально работает в браузерах: chrome, mozilla firefox.
+        </p>
+        <p>Программа состоит из 3-х веток: 
+            <dl>
+                <dt></dt>
+                <dd><u>равномерная разметка</u></dd>
+                <dd><u>не равномерная разметка</u></dd>
+                <dd><u>глобальные настройки</u></dd>
+            </dl>
+       <p>Также есть возможность прокручивать вал мотора вращая ручку енкодера. Для этого есть коричневая кнопка <u>вращать ручн.</u> над коротой рисунок руки с красным полумесяцем под пальцем. и текстом <b>"не нажато"</b></p> 
+       <p>Этот режим доступен только из главного меню пограммы <b>"равномерная разметка?"</b> Если нажать на кнопку <u>вращение ручн.</u> находясь в главном разделе меню, то цвет полумесяца под пальцем рисунка руки изменится на зеленый и сменится надпись на <b>"удержание кнопки"</b>. 
+            При вращении колесика мыши вверх или вниз вал будет вращаться влево или вправо. Нажав на кнопку <u>вращение ручн.</u> еще раз, программа выйдет из режима ручного вращения и при вращении колесика мыши будут выделятся пункты меню на дисплее. 
+            В реальном устройстве будет кнопка, которую нужно нажать, держать и крутить енкодер для поворота вала как угодно. 
+       </p> 
+       <h3>глобальные настройки. пункт пеню: <u>настр.</u></h3>
+       <p>Находясь в главном меню (когда документ загрузится, то дисплей имитирует включение подсветки и загружается главное меню. После обновление страницы в браузере - тоже самое) убедиться
+        что не нажата кнопка <u>вращать ручн.</u> (если была нажата, нажать еще раз) навести указатель мыши на енкодер. Енкодер сменит цвет обводки на красный и изменится значок указателя мыши. Вращая колесико мыши выбрать пункт  <b> &#x25b6;настр.&#x25c0;</b>
+        и нажать на колесико мыши. 
+       </p>
+       <p>
+        Перешли в меню настроек. В этом меню три пункта для изменения: 
+        <dl>
+            <dt><u>передат. число: 1.0</u></dt>
+            <dd>Настройка передаточного числа мотор-редуктора. Влияет на скорость вращения вала и точность. В этой программе влияет только на скорость.
+                Значение 1.0 значит 1/1. Если увеличить, то общая скорость вращения вала будет маленькая
+            </dd>
+            <dt><u>cкорость авто: 0.8</u></dt>
+            <dd>
+                Скорость вращения в режиме автоматической разметки. Автоматическая разметка это <u>равномерная разметка</u> и <u>не равномерная разметка</u>.
+                Если увеличить, то скорость вращения вала увеличится.
+            </dd>
+            <dt><u>скорость ручн.: 1</u></dt>
+            <dd>
+                Скорость вращения в ручном режиме (когда удерживается кнопка <b>вращать ручн.</b>). На сколько градусов сразу повернуть вал двигателя за один "микроповорот" ручки енкодера. Короче тут лучше самому посмотреть как работает.
+            </dd>
+        </dl>
+       </p>
+       <p>
+        Вращая колесико мыши выбираем нужный пункт, далее нажимаем снова на колесико мыши, выбранный нами пункт начнет мигать (вернее его изменяемое значение), крутим колесико мыши вверх/вниз для увеличения/уменьшения
+        значения. Программа блокирует числа меньше или равные нулю, а также больше 360. Настроив значение нужно нажать на колесико мыши еще раз. Программа сохранит значение и вернет вращению колесика мыши функцию навигации.
+        Далее выбираем <b> &#x25b6;да&#x25c0;</b>. Программа выходит в главное меню с новыми значениями настроек до первой перезагрузке страницы в браузере.
+       </p>
+       <h3>равномерная разметка. пункт меню:  <u> да </u></h3>
+        <p>Выбираем пункт <b> &#x25b6;количество:</b></p> нажимаем колесико мыши, значение начнет мигать, крутим колесико мыши для изменения, нажимаем колесико мыши для
+           сохранения значения. Выбираем <b> &#x25b6;да&#x25c0;</b>
+        </p>
+        <p>
+            В этой ветке программы мнимая окружность разбивается на равные части от 1 до 360, изменяя пункт <b>количество:</b>
+            подпункт <b>градусов:</b> автоматически расчитывает сколько будет градусов между точками. Например: <u>количество: 9</u> <u>градусов: 40</u>,
+            после выбора окружность будет разбита на 9 равных частей по 40 градусов между точками.
+        </p>
+        <p>
+            После ввода кол-ва частей и нажатии на пункте <b>да</b> мы переходим на предпусковой экран программы. Здесь отображается информация о кол-ве разбитых точек итд.
+            Также на рисунке мотор-редуктора вокруг вала будут нарисованы кружки - точки на которые мы разбили окружность. Рядом с точками надписи кол-во градусов отсосительно нуля.
+            Положение нуля одинаково для всех режимов работы. Предполагается, что в нулевой точке находится инстумент.
+        </p>
+        <p>
+            Тут мы можем выбрать пункт <b>отмена</b> и вернуться в главное меню. Если нажать <b>да</b>, то произойдет запуск программы автоматической разметки.
+            Стрелка с валом будет вращаться до ближайшей точки, когда стрелка подойдет к точке, точка окрасится из фиолетового в зеленый цвет и программа встанет на паузу.
+            Предполагается что теперь можно например сверлить, кернить, фрезеровать итд. Для продолжения нужно нажать <b>продолжить</b>. Если нажать <b>отмена</b>, то мы вернемся в главное меню.
+            Когда вал сделает полный оборот программа закочится и мы вернемся в главное меню.
+        </p>
+        <h3>не равномерная разметка. пункт меню:  <u> нет </u></h3>
+        Указываем общее количество точек, на которые будет разбита окружность. Разбита окружность будет не равномерно. По умолчанию (если ничего не менять, а нажать <b>добавить</b> )
+        будут созданы и нарисованы на мотор-редукторе 4 точки отодвинутые на 20 грудусов друг от друга. Точки 4, а пунктов для редактирования 3. Эти пункты - это промежутки между точками.
+        Изменяя промежутки, точки на мотор-редукторе автоматически перерисовываются (двигаются). Если мы добавили много точек, то поля редактирования для их промежутков не влезут в дисплей. Нужно вращать колесико мышки. Короче 
+        это как в браузере мемасики прокручивать на сайте. Изменяем/не изменяем промежутки, нажимаем <b>да</b> и программа разметки стартует сразу. Если в меню редактирования нажать <b>отмена</b>
+        то возвращаемся в главное меню. Работае так же как и ветка <u>равномерная разметка</u>.
+
+
+    </div>
+    <div class="about-code">
+        <h1>описание работы кода скрипта</h1>
+        <ul>
+            <li><a href="#graphic">графика</a>
+            <li><a href="#uml">объектная модель</a></li>
+            <li><a href="#class-Display">class Display:</a></li>
+            <li><a href="#class-Lcd">class Lcd:</a></li>
+            <li><a href="#class-Encoder">class Encoder:</a></li>
+            <li><a href="#class-Motor">class Motor:</a></li>
+            <li><a href="#class-atmega">class ATMega:</a>
+                <ul>
+                    <li><a href="#attributes-mega">атрибуты:</a></li>
+                    <li><a href="#methods">методы</a></li>
+                    <li><a href="#state-mashine">машина состояний (конечный автомат)</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="ttl" id="graphic"><h2>Графика.</h2></div>   
    
     <p>Скрипт написан на python3. Его обработкой и трансляцией в javascript занимается <a href="https://brython.info/">Brython</a>,  который подгружаем в теле тега <span class="bld"> head</span>, там же подгружаем штуку для подсвечивания кода highlight. </p>
     <p>SVG объекты нарисованы в программе <a href="https://boxy-svg.com/">boxy-svg</a>
@@ -416,7 +542,7 @@
      </table>
     <p>Полумесяц под рукой меняет цвет в состоянии имитации нажатия и удержании кнопки "вращать ручн.".</p>
 
-    <div class="ttl"><h2>Объектная модель.</h2></div>
+    <div class="ttl" id="uml"><h2>Объектная модель.</h2></div>
      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
 <svg width="1400" height="1200" viewBox="60 263 1550 1450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -589,7 +715,7 @@
         def motor(self, obj) -> None:
             self._motor = obj 
     </code></pre>
-    <p>Как видно сеттер оборачивает декоратор-функция <span class="bld">@inject</span>. Я решил так сделать, чтобы убрать дублирующийся код. Из комментария декоратора можно подумать что порядок вызова декорируемого метода и присваивания ссылки объекта ATMega атрибуту объектов-компонентов имеет значение. Порядок не имеет значения, просто таков был ход моей мысли.</p>
+    <p>Как видно сеттер оборачивает декоратор <span class="bld">@inject</span>. Я решил так сделать, чтобы убрать дублирующийся код. Из комментария декоратора можно подумать что порядок вызова декорируемого метода и присваивания ссылки объекта ATMega атрибуту объектов-компонентов имеет значение. Порядок не имеет значения, просто таков был ход моей мысли.</p>
     <pre><code class="python">
         def inject(method_setter: Callable) -> Callable:
             """Декоратор для сеттеров. Внедряет объект ATMega в объект каждой компоненты
@@ -603,7 +729,8 @@
             return wrapper
     </code></pre>
     <p>Теперь объект <span class="bld">controller</span> имеет доступ к каждому из объектов, переданному его конструктору  и каждый из этих переданных объектов имеет также доступ только к контроллеру.</p>
-    <div class="ttl"><h2>class Display(Component):</h2></div>
+    
+    <div class="ttl" id="class-Display"><h2>class Display</h2></div>
     <!-- {'__thisclass__': <class '__main__.Display'>, '__self_class__': <__main__.Lcd object>} -->
     <p>Класс <span class="bld">Display</span> потомок класса <span class="bld">Component</span>.
         Для работы с дисплеем у меня 2 класса: этот родительский и его потомок класс <span class="bld">Lcd</span>. От этого мне нужно чтобы SVG прямоугольник-дисплей при изменении своего размера или координат
@@ -926,6 +1053,10 @@
         def strlen(self) -> int:
             return self._max_len
 
+        @property
+        def maxlines(self) -> int:
+            return  self._max_lines
+
 
         def on_power(self) -> None:
             """Включить питание. Цвет дисплея светло зелено-серый"""
@@ -1106,13 +1237,15 @@
             
         # ------------------------------------------------------------------------------
         
-        def create_points(self, num_points: int , deg_pos: float = None) -> None:
-            """Нарисовать точки-окружности после команды ДА равномерная разметка.
+        def create_points(self) -> None:
+            """Нарисовать точки-окружности после команды ДА равномерная разметка или не равномерная разметка.
+               Значения углов берется из уже заполненного в одном из состояний списка self.mega.groupdegs.
                Также рисуется линия-указатель и текст число градусов возле точки. С позиции относительный нуль справа."""
 
             cx = float(self.limb["cx"])
             cy = float(self.limb["cy"])
-            delta = 360 / num_points
+            
+            deg_pos = self.mega.degpos
             tmp_deg = 0
             radius = int(self.limb["r"])+15
 
@@ -1156,7 +1289,7 @@
                 return ln
 
 
-            for i in range(num_points):
+            for i, delta in enumerate(self.mega.groupdegs):
                 key: str = "point-"+str(i)
                 posX = cx + radius * math.cos(((tmp_deg ) * math.pi) / 180)
                 posY = cy + radius * math.sin(((tmp_deg ) * math.pi) / 180)
@@ -1321,7 +1454,7 @@
             self._delta_reductor: float = 1.0
 
                 # скорость в режиме разметки
-            self._vauto: float = 0.1
+            self._vauto: float = 0.8
 
                 # скорость в ручном режиме
             self._vman: int = 1
@@ -1332,8 +1465,11 @@
                 # разбить на равное кол-во частей?
             self.is_equally: bool = True
 
-                # количество меток
+                # количество меток равномерная разметка
             self._amount: int = 8
+
+                # количество меток не равномерная разметка
+            self._amount_not_eq: int = 4
 
                 # итого в сумме при равномерной разметке
             self._totalsum: float = 45.0
@@ -1344,8 +1480,7 @@
 
                 # текущий угол поворота
             self.degpos: float = 0
-            
-                
+                           
                 # значение градусов, до которого нужно провернуть сейчас
             self._next_point: float = 0.0
 
@@ -1357,7 +1492,7 @@
 
                 # константы макро состояний
             self.enum_state: dict = {
-                None: "END", 1: "EQUALLY", 2: "SETTING", 3: "ARRAY", 4: "PREPARE_AM", 5: "RUN_AUTO", 6: "BEGIN", 7: "STOP"
+                None: "END", 1: "EQUALLY", 2: "SETTING", 11: "NOT_EQUALLY", 44: "PREPARE_NOT_AM", 4: "PREPARE_AM", 5: "RUN_AUTO", 6: "BEGIN", 7: "STOP"
             }
 
                 # константы микросостояний в режиме работы авто
@@ -1384,9 +1519,19 @@
                             "text": {1: f"{'\u00A0'*2}"+"РАЗМЕТКА ПОРОВНУ"},
                             "navigate": True
                 },
+                "NOT_EQUALLY": {"nav": {1: ["добавить", self.add_not_equal]},
+                               "field": {2: [f"число точек:", self.set_amount_not_eq, self._amount_not_eq]},
+                               "text": {1: f"НЕ РАВНОМЕРНАЯ РАЗМЕТКА"},
+                               "navigate": True
+                },
                 "PREPARE_AM": {"nav": {1: ["начать", self.start_head], 2: ["отмена", self.stop_head]},
                             "field": dict(),
                             "text": {1: f"\u00A0 РАВНОМЕРНАЯ РАЗМЕТКА"},
+                            "navigate": True
+                },
+                "PREPARE_NOT_AM": {"nav": {1: ["да", self.start_head], 2: ["отмена", self.stop_head]},
+                            "field": dict(),
+                            "text": {1: f"ДИАПАЗОНЫ:"},
                             "navigate": True
                 },
                 "RUN_AUTO": {"nav": {1: ["продолжить", self.continue_head], 2: ["отмена", self.cancel]},
@@ -1410,7 +1555,8 @@
             if not s:
                 self.state = 6
 
-            dsp = self.displays[s]
+                # (dsp - display) дисплей (один из вложенных словарей self.displays) текущего состояния
+            dsp: dict = self.displays[s]
 
                 # для моргания значения пункта поля ввода в меню настроек
             if (time.time() - self.timer) >= 0.3:
@@ -1476,6 +1622,19 @@
                 for i, line in enumerate(field_sett):
                     self.lcd.write(line, i+3)
 
+            # --------------------------------> NOT_EQUALLY state
+            elif s == "NOT_EQUALLY":
+
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                navigate, field_sett = self.get_nav(s)
+                    # вывести меню на экран
+                self.lcd.write(navigate, 8) 
+                for i, line in enumerate(field_sett):
+                    self.lcd.write(line, i+3)
+
+
             # --------------------------------> PREPARE_AM state 
             elif s == "PREPARE_AM":
                 
@@ -1489,6 +1648,21 @@
                 self.lcd.write(f"{'-' * self.lcd.strlen}", 4) 
                 self.lcd.write(f"{'\u00A0'*3} на {self.amount}"+" штук", 5)
                 self.lcd.write(f"{'\u00A0'*3} по {self.total_sum}"+"\u00B0", 6)
+
+            # --------------------------------> PREPARE_NOT_AM state
+            elif s == "PREPARE_NOT_AM":
+                    # чистка дисплея, чтобы при скроллинге удалить 
+                    # последние повторения
+                self.lcd.clean()
+                for k in dsp["text"]:
+                    self.lcd.write(dsp["text"][k], k)
+
+                navigate, field_sett = self.get_nav(s)
+                    # вывести меню на экран
+                self.lcd.write(navigate, 8) 
+                for i, line in enumerate(field_sett):
+                    self.lcd.write(line, i+3)
+
 
             # --------------------------------> RUN_AUTO state
                         #
@@ -1509,7 +1683,7 @@
                         # переход в подсостояние получения очередной точки от генератора 
                     self.deggen = self.next_deg()
                     self.substate = 2
-                 
+                    
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 2-mNEXT_POINT
                 elif self.substate == 2:
                     # получаю от генератора угол на который нужно провернуться
@@ -1537,11 +1711,14 @@
                     self.lcd.write("В РАБОТЕ", 2)
                     self.lcd.write(f"тек. положение: {round(self.degpos, 2)}", 5)
 
-                        # по истечении малого промежутка времени прибавить в углу поворота значение 
+                        # по истечении малого промежутка времени прибавить в углу поворота значение выражения
+                        # (скорость в авто режиме / передаточное число редуктора)
                         # такая анимация
+
                     if (time.time() - self.timer) >= 0.005:
-                        self.motor.degstep = 0.4
-                        self.degpos += 0.4
+                        speed: float = (self.vauto / self.delta_reductor)
+                        self.motor.degstep = speed
+                        self.degpos += speed
                         
                         # если находимся в пределах центра точки, то перекрашиваем точку в зеленый
                         # и это значит пауза. переходим в подсостояние ожидания нажатия на пункте меню, которое
@@ -1616,7 +1793,7 @@
             self.displays[self.enum_state.get(self.state)]["field"][self.nav][1] = self.stackpush
             self.stackpush = None
 
-
+            #print(self.displays["PREPARE_NOT_AM"]["field"])
 
         def change_delta_reductor(self) -> None:
             """ Инкремент-декремент значений при вращении колеса мыши на пункте поля ввода 
@@ -1663,7 +1840,7 @@
                  
         
         def count_field_equally(self) -> None:
-            """Вращение колеса мыши. РАВН. РАЗМЕТКА."""
+            """Вращение колеса мыши. РАВНОМЕРНАЯ РАЗМЕТКА."""
         
             self.amount += self.encoder.around_direction       
             try:
@@ -1672,6 +1849,34 @@
                 self.amount = 1
 
 
+        def count_field_not_equally(self) -> None:
+            """Вращение колеса мыши. НЕ РАВНОМЕРНАЯ РАЗМЕТКА."""
+
+            self.amount_not_eq += self.encoder.around_direction       
+            try:
+                x = 1 / self.amount_not_eq    
+            except ZeroDivisionError:
+                self.amount_not_eq = 1
+
+
+        def change_range_not_equall(self) -> None:
+            self.motor.delete_points()
+            total = sum([i[2] for i in self.displays["PREPARE_NOT_AM"]["field"].values()])
+            if self.this_param <= 0:
+                self.this_param = 1
+            elif total > 360:
+                self.this_param -= 5
+            else:
+                self.this_param += self.encoder.around_direction
+            for i, value in enumerate(self.displays["PREPARE_NOT_AM"]["field"].values()):
+                self.groupdegs[i] = value[2]
+            tmp_sum = sum(self.groupdegs[:-1])
+            
+            self.groupdegs[-1] = 360 - tmp_sum
+            self.motor.create_points()
+            
+        # . . . . . . . . . --------------- . . . . . . . . . . . 
+
         def st_mtd_yes(self) -> None:
             """пункт меню ДА-главный экран. Событие по нажатии"""
 
@@ -1679,7 +1884,7 @@
             self.lcd.clean()
             self.nav = 1
 
-
+        
 
         def st_mtd_settings(self) -> None:
             """пункт меню НАСТР.-главный экран. Событие по нажатии"""
@@ -1693,7 +1898,9 @@
         def st_mtd_no(self) -> None:
             """пункт меню НЕТ-главный экран. Событие по нажатии"""
 
-            self.lcd.write("выбор: нет", 5)
+            self.state = 11
+            self.lcd.clean()
+            self.nav = 1
 
 
 
@@ -1712,13 +1919,28 @@
             self.state = 4
             self.nav = 1
             self.lcd.clean()
-           
-                # тут вызов рисовалки
-            self.motor.create_points(self.amount, self.degpos)
+                      
                 # добавление в self.groupdegs значений углов
             self.groupdegs.extend([self.total_sum for _ in range(self.amount)])
-           
+                # тут вызов рисовалки
+            if self.groupdegs:
+                self.motor.create_points()
 
+
+
+        def add_not_equal(self) -> None:
+            """пункт меню ДА не равномерная разметка"""           
+            self.state = 44
+            self.nav = 1
+            self.lcd.clean()
+            self.groupdegs.extend([20 for _ in range(self.amount_not_eq-1)])
+            tmp_sum = sum(self.groupdegs)
+            self.groupdegs.append(360-tmp_sum)
+            
+            for i, value in enumerate(self.groupdegs[: -1], 1):
+                self.displays[self.enum_state.get(self.state)]["field"][i+2] = [f"диапазон {i}", self.set_range_not_equall, value]
+            if self.groupdegs:
+                self.motor.create_points()  
         # ..............................................................
 
         def start_head(self) -> None:
@@ -1733,6 +1955,8 @@
             self.motor.delete_points()
                 # очистить self.groupdegs
             self.groupdegs.clear()
+
+            self.displays["PREPARE_NOT_AM"]["field"].clear()
                 # state = BEGIN
             self.st_mtd_sett_yes()
 
@@ -1745,7 +1969,6 @@
         def continue_head(self) -> None:
             if self.substate == 4:
                 self.substate = 2
-
 
         # ................................................................
 
@@ -1768,6 +1991,11 @@
 
 
         @substitute_wheel
+        def set_range_not_equall(self) -> None:
+            self.wheel_method = self.change_range_not_equall
+
+
+        @substitute_wheel
         def set_dreductor(self) -> None:
             """поле ввода ПЕРЕДАТОЧН. ЧИСЛО РЕДУКТОРА.
             экран настройки. Событие по вращению колеса мыши"""
@@ -1782,6 +2010,13 @@
             
                 # подменяю метод при вращении колеса мыши
             self.wheel_method = self.count_field_equally
+
+
+        @substitute_wheel
+        def set_amount_not_eq(self) -> None:
+            """поле ввода КОЛИЧЕСТВО не равномерная разметка"""
+
+            self.wheel_method = self.count_field_not_equally
                
 
         @substitute_wheel
@@ -1839,15 +2074,19 @@
                 # словарь вида {"nav":{1: ("да", self.st_mtd_sett_yes))}
             st_nav: dict = self.map_display[0]
 
-                # словарь вида {2: (f"передат. число:", self.set_dreductor, self.delta_reductor), 3: (f"скорость авто:", self.set_vauto, self.vauto)}
+                # словарь вида {"field":{2: (f"передат. число:", self.set_dreductor, self.delta_reductor), 3: (f"скорость авто:", self.set_vauto, self.vauto)}}
             field_nav: dict = self.map_display[1]
-             
+            
+                # макс кол-во строк в дисплее включая навигационную 
+            max_height_lines = self.lcd.maxlines
+            
+
                 # формирование строки меню с помеченным выбранным пунктом в зависимости от значения self.nav 
             navigate = list(map(lambda z: f"\u25b6{z[1][0]}\u25c0" if z[0] == self.nav else z[1][0], st_nav.items()))
                 
                 # формирование списка полей ввода с помеченным пунктом в зависимости от self.nav Работает в паре с строкой навигации
             field: list = list() 
-            
+           
                 # если находимся в меню настроек при редактировании, то
                 # мигаем значением редактируемого поля   
             for key, val in field_nav.items():
@@ -1861,6 +2100,19 @@
                 else:
                     result = f"{val[0]} {val[2]}"
                 field.append(result)
+            
+                # если длинна сформированного списка больше максимального числа
+                # влезаемых в дисплей строк -- навигационную, то проверяем:
+                # если мы на строке навигации, то возвращаем срез от начала списка, до макс. высоты дисплея-1
+                # иначе возвращаем срез от тек.навигация - 3 (Заголовок - 1я, пробел - 2я. --3 т-к инд.списка с 0) до границ макс высоты дисплея
+                # если состояние == PREPARE_NOT_AM то это вот все для него, остальные экраны не выходят содержимым за пределы
+                # размеров дисплея, поэтому там все ок. В теле состояния очищаем дисплей,
+                # т-к при прокрутке под конец остаются "не живые" строки.
+            if len(field) > self.lcd.maxlines - 1:
+                if self.nav >= 3:
+                    field = field[self.nav-3: self.nav+2]
+                else:
+                    field = field[:5]
             
             return (f"{'\u00A0'*5}".join(navigate), field)
 
@@ -1934,7 +2186,23 @@
                 except ZeroDivisionError:
                     self.displays["EQUALLY"]["field"][3][2] = 360
             self._amount = self.amount
-           
+        
+            
+        @property
+        def amount_not_eq(self) -> int:
+            """Количество меток. Не равномерная разметка."""
+            return self.displays["NOT_EQUALLY"]["field"][2][2]
+
+
+        @amount_not_eq.setter
+        def amount_not_eq(self, value: int) -> None:
+            if self.amount_not_eq > 360:
+                self.this_param = 0
+            elif self.amount <= 0:
+                self.this_param = 1
+            else:
+                self.this_param = int(value)
+
 
         @property
         def total_sum(self) -> int:
@@ -2073,16 +2341,18 @@
     motor = Motor("val", "limb")
     controller = ATMega(lcd_display, man_encoder, motor)
     controller.run()
+
+            # disabled
     @bind(document["power-on"], "click")
     def start_rotate(e):
         controller.lcd.on_power()
      
-
+            # disabled
     @bind(document["power-off"], "click")
     def stop_rotate(e):
         controller.motor.degstep = 10
 
-
+           
     @bind(document["man-mode"], "click")
     def man_mode(e):
         b = controller.is_man_mode 
