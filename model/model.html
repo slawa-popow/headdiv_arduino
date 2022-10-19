@@ -2240,12 +2240,12 @@
                 # если состояние == PREPARE_NOT_AM то это вот все для него, остальные экраны не выходят содержимым за пределы
                 # размеров дисплея, поэтому там все ок. В теле состояния очищаем дисплей,
                 # т-к при прокрутке под конец остаются "не живые" строки.
-            if len(field) > self.lcd.maxlines - 1:
+            if len(field) >= self.lcd.maxlines - 2:
                 if self.nav >= 3:
                     field = field[self.nav-3: self.nav+2]
                 else:
                     field = field[:5]
-            
+                    
             return (f"{'\u00A0'*5}".join(navigate), field)
 
 
