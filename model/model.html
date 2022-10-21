@@ -1420,7 +1420,7 @@
                 ln.setAttributeNS(None, "stroke-width", "2px")
                 return ln
 
-
+            
             for i, delta in enumerate(self.mega.groupdegs):
                 key: str = "point-"+str(i)
                 posX = cx + radius * math.cos(((tmp_deg ) * math.pi) / 180)
@@ -1432,6 +1432,7 @@
                     # ключ - номер пп, значение - объект
                 self.points[i] = obj_point
                 tmp_deg += delta
+                
             
                 # -deg_pos * math.pi для того чтобы после поворота вала 
                 # (после отмены или ручного поворота, 2 круга программы) кружки и линия 
@@ -1591,8 +1592,8 @@
                 # скорость в ручном режиме
             self._vman: int = 1
 
-                # угол между метками
-            self. _set_deg: float = 45.0
+                # текущий угол относительно нуля
+            self.current_angle: float = 0.0
 
                 # разбить на равное кол-во частей?
             self.is_equally: bool = True
@@ -1629,7 +1630,7 @@
 
                 # константы микросостояний в режиме работы авто
             self.enum_microstate: dict = {
-                0: "mSTOP", 1: "mGET_CORO", 2: "mNEXT_POINT", 3: "mROTATE", 4: "mPOINT",  5: "mPAUSE", 6: "mCONTINUE"
+                0: "mSTOP", 1: "mGET_CORO", 2: "mNEXT_POINT", 3: "mROTATE", 4: "mPOINT", 44: "mPRECISE_FINISH",  5: "mPAUSE", 6: "mCONTINUE"
             }
 
                 # дисплеи состояний, пункты меню, замещающие ссылки методов на события вращения и нажатия колеса мыши 
@@ -1828,7 +1829,7 @@
                         self.counter_point += 1
                         self.total_point += self.nextpoint
 
-                        if self.total_point >= 360:
+                        if (359 <= self.total_point <= 360) or self.total_point > 360:
                             self.counter_point = 0
 
                             # взятие нового времени для отсчета
@@ -1855,12 +1856,31 @@
                         # если находимся в пределах центра точки, то перекрашиваем точку в зеленый
                         # и это значит пауза. переходим в подсостояние ожидания нажатия на пункте меню, которое
                         # вызовет метод перевода в подсостояние № 2. И так по кругу, пока жив генератор.
-
+                    
                     if (self.nextpoint-0.5 <= self.degpos <= self.nextpoint+0.5):
+                        #self.motor.id.attrs["transform"] = f"rotate({self.counter_point*self.nextpoint})"
+
+                        
+                        self.lcd.clean()
+                        self.substate = 44
+
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 44-mPRECISE_FINISH
+            # режим доводки
+            
+                elif self.substate == 44:
+                    self.lcd.write(f"{'\u00A0'*9}ДОВОДКА.", 2)
+                    self.lcd.write(f"тек. положение: {round(self.degpos, 3)}", 5)
+                    if round(self.degpos, 1) == round(self.nextpoint, 1):
                         self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
                         self.lcd.clean()
-                        self.substate = 4
-
+                        self.substate = 4    
+                    elif (round(self.degpos, 1) - round(self.nextpoint, 1)) > 0.1:
+                        self.motor.degstep = -0.01
+                        self.degpos -= 0.01
+                    elif (self.degpos - self.nextpoint) < 0.1:
+                        self.motor.degstep = 0.01
+                        self.degpos += 0.01
+                   
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 4-mPOINT
                 elif self.substate == 4:
                     
@@ -1880,7 +1900,7 @@
                 self.lcd.clean()
                 self.total_point = 0
                 self.counter_point = 0
-
+                self.current_angle = 0.0
                 self.degpos = self.get_value_rotate()
 
                 self.nextpoint = 0
@@ -2347,10 +2367,6 @@
             if value >= 1:
                 self.this_param = value
             
-            if (self.total_sum * self.amount) > 360:
-                while self.total_sum * self.amount > 360:
-                    self.this_param -= 1
-            
 
 
         @property
@@ -2418,7 +2434,7 @@
 
         @nextpoint.setter
         def nextpoint(self, value: float) -> None:
-            self._next_point = value if type(value) is float else round(float(value), 3)
+            self._next_point = value if type(value) is float else float(value)
 
 
         @property
