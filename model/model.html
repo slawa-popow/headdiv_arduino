@@ -432,13 +432,13 @@
         <ul>
             <li><a href="#graphic">графика</a>
             <li><a href="#uml">объектная модель</a></li>
-            <li><a href="#class-Display">class Display:</a></li>
-            <li><a href="#class-Lcd">class Lcd:</a></li>
-            <li><a href="#class-Encoder">class Encoder:</a></li>
-            <li><a href="#class-Motor">class Motor:</a></li>
-            <li><a href="#class-atmega">class ATMega:</a>
+            <li><a href="#class-Display">class Display</a></li>
+            <li><a href="#class-Lcd">class Lcd</a></li>
+            <li><a href="#class-Encoder">class Encoder</a></li>
+            <li><a href="#class-Motor">class Motor</a></li>
+            <li><a href="#class-atmega">class ATMega</a>
                 <ul>
-                    <li><a href="#attributes-mega">атрибуты:</a></li>
+                    <li><a href="#attributes-mega">атрибуты</a></li>
                     <li><a href="#methods">методы</a></li>
                     <li><a href="#state-mashine">машина состояний (конечный автомат)</a></li>
                 </ul>
@@ -986,6 +986,396 @@
     <p>
         И наконец <span class="bld">self._svg_lines[line] = newline</span> добавляем созданный объект svg текста в словарь (временно прописываем его в общежитии).
     </p>
+    <p>Метод удаления/очистки текста:</p>
+    <pre><code class="python">
+        def clean(self, line=None) -> None:
+            """Очистка экрана. если вызвать метод без параметров
+               то чистится все табло. """
+
+            if line is None:
+                if self._svg_lines:
+                    for k, v in self._svg_lines.items():
+                        self._id_lcd.removeChild(v)
+                    self._svg_lines.clear()
+            else:
+                self._id_lcd.removeChild(self._svg_lines[line])
+    </code></pre>
+    <p>
+        Если нужно очистить весь дисплей, то вызываем метод без аргументов. В блоке <span class="bld">if</span> что если был вызван метод без аргументов (именованный параметр <span class="bld">line</span> равен <b>None</b>)
+        то проверяем что если словарь <span class="bld">self._svg_lines</span> не пустой, то сначала в цикле удаляем из структуры SVG разметки все наши текстовые объекты,
+        потом чистим словарь. Если метод был вызван с аргументом (<span class="bld">line</span>) не равен <b>None</b> то удаляем объект из SVG разметки, взяв его из словаря по индексу <span class="bld">line</span>.   
+    </p>
+    <p style="font-size: 0.9em;">Я только сейчас, на момент написания этих абзатцев, заметил что у меня объект строки в блоке <b>else:</b> удаляется только из структуры svg, но не из словаря. В любом случае это не влияет на работу, т-к даже если в словаре висит ссылка на несуществующий объект, то она не будет использована, пока по этому индексу не будет пересоздан новый объект. <b>Хожу по тонкому льду. Это потенциальный источник ошибок!</b> Пока оставляю как есть.</p>
+    
+    <div class="ttl" id="class-Lcd"><h2>class Lcd</h2></div>
+
+    <pre><code class="python">
+    class Lcd(Display):
+        """Дисплей"""
+
+        def __init__(self, id_svg: str, size_char: int) -> None:
+            """2 параметра: айди грфического объекта группы <g> - id_svg; 
+                            размер шрифта - size_char"""
+
+            super().__init__(id_svg, size_char)
+            self.on_power()
+
+            
+        @property
+        def id(self):
+            """объект svg дисплея. Возвращает объект прямоугольника в группе <g id="lcd">"""
+            return self._id_lcd.firstElementChild
+
+        @id.setter
+        def id(self, value: Any):
+            """Не изменяемый"""
+            pass
+
+        @property
+        def strlen(self) -> int:
+            return self._max_len
+
+        @property
+        def maxlines(self) -> int:
+            return  self._max_lines
+
+
+        def on_power(self) -> None:
+            """Включить питание. Цвет дисплея светло зелено-серый"""
+
+            self.id.style["fill"] = f"rgb(203, 240, 143)"
+
+
+
+        def off_power(self) -> None:
+            """Отключить питание. Стереть всё."""
+
+            self.id.style["fill"] = f"rgb(158, 182, 121)"
+            self.clean()
+    </code></pre>
+    <p>
+        "Рабочий" класс дисплея, наследник <span class="bld">class Display</span>. Создаются объекты-свойства работы с унаследованными атрибутами. Методы <span class="bld">on_power(), off_power()</span> имитируют состояние выключенного дисплея, изменяют фон дисплея, а также (скорее всего) в методе <span class="bld">off_power()</span> будет код деструкторов объектов программы.
+    </p>
+    <p>В конструкторе вызывается конструктор суперкласса <span class="bld">Display</span> с параметрами текущего экземпляра. 
+        Свойсво <span class="bld">@property.getter</span> <b>id</b> возвращает <u>объект конкретно самого оливкового прямоугольника-дисплея из группы</u>. Сеттер заблокирован.
+        webAPI метод <span class="bld">firstElementChild</span> возвращает первый объект в дереве SVG разметки. Первый в группе дисплей.
+    </p>
+
+    <div class="ttl" id="class-Encoder"><h2>class Encoder</h2></div>
+
+    <p>
+        От енкодера мне нужно, чтобы по наведении указателя мышки он выделялся, при вращении колесика мышки вращалась ручка енкодера, по нажатии на колесико мышки, 
+        был визуальный эффект нажатия на енкодер и выполнялся соответствующий код. Т-к колесико мышки и еть тот енкодер, который я буду лепить в реальное устройство, то управление моделью сделал колесиком мыши.
+        Обработка событий вращения и нажатия это обработка прерываний в контроллере. Здесь при вращении колесика мыши метод обработчик событий вращения <span class="bld"> wheel(self, e) устанавливает в публичный атрибут self.around_direction: int</span> <b>+1</b> или <b>-1</b> 
+        в зависимости от стороны вращения. В обработчиках прерываний микроконтроллера я буду обрабатывать уровень фронта сигнала от енкодера и менять <span class="bld">volatile</span> переменную/член структуры/класса с++ (на момент написания этого текста я еще не определися на чем будет код для микроконтроллера: на структурах, на классах, на лампах, транзисторах или бронепоезде).
+        В программе микроконтроллера будет 3 обработчика прерывания для енкодера. Благо чип на arduino2560 имеет их аж 6 внешних.
+    </p>
+
+    <pre><code class="python">
+    class Encoder(Component):
+        """Ручной енкодер"""
+
+        def __init__(self, id_encoder: str, id_encoder_path: str) -> None:
+            """id_encoder - айди группы <g> svg объекта; id_encoder_path - айди обводки колесика (paht)"""
+
+            super().__init__()
+
+                # объект группы енкодера
+            self._id = document[id_encoder]
+
+                # <path>. Hужна его обводка для выделения при наведении мыши
+            self._path_id = document[id_encoder_path]
+
+                # на сколько градусов повернуть за раз енкодер 
+            self._deg_step = 10
+                
+                # сумма поворотов
+            self._total_deg = 0
+
+                # направление вращения: 1 туда, -1 сюда
+            self.around_direction: int = 1
+
+                # Имя браузера (не понадобилось. Оставил на память для что-как-куда)
+            self.navigator: list = window.navigator.userAgent.split("/")[2].split()[-1]
+
+                # обработчики событий прокрутки колесика мыши над енкодером для браузеров Firefox и группы chromium 
+            self._id.bind("mousewheel", self.wheel)
+                # Этот для Firefox
+            self._id.bind("DOMMouseScroll", self.wheel) 
+
+                # Обработчик события по наведении указателя мыши на енкодер
+            self._id.bind("mouseover", self.select_encoder)
+
+                # Обработчик события если убрать указатель мыши из области енкодера
+            self._id.bind("mouseout", self.no_select_encoder)
+
+                # Обработчик события при нажатия на колесико мыши на енкодер.
+            self._id.bind("mousedown", self.click_wheel)
+            
+
+
+        @property
+        def deg_step(self) -> int:
+            """Вернуть шаг поворота"""
+
+            return self._deg_step
+
+
+        @deg_step.setter
+        def deg_step(self, value: int) -> None:
+            self._deg_step = value
+
+
+        @property
+        def total_deg(self) -> int:
+            """Геттер вернет общее кол-во поворотов енкодера."""
+
+            return self._total_deg
+
+
+        @total_deg.setter
+        def total_deg(self, value: int) -> None:
+            self._total_deg = value
+        
+
+        def wheel(self, e) -> None:
+            """wheelDelta - живет в группе браузеров chromium, detail - мозилла.
+               если событие пришло от браузеров группы chromium то значение
+               вернувшее wheelDelta (120) изменяем на 1 поделив его на 120. 
+               detail есть в мозилле и он вернет или -3 или 3. В зависимости 
+               от браузера в любом случае значение объекта события нужно сделать равным 1
+               и умножить на наш шаг-градусы разовой прокрутки енкодера. Код честно спер с какого-то
+               сайта про javascript."""
+
+            delta = None
+            if hasattr(e, "wheelDelta"):
+                delta = e.wheelDelta / 120
+                self.total_deg += delta * (-self.deg_step)
+    
+            elif hasattr(e, "detail"):
+                delta = e.detail / 3
+                self.total_deg += delta * (-self.deg_step)
+                
+            if delta:
+                    # сохранить знак направления вращения, запретить прокрутку над svg объектом
+                self.around_direction = 1 if delta > 0 else -1
+                e.preventDefault()
+
+                if abs(self.total_deg) >= 360:
+                    self.total_deg = 0
+            self._id.attrs["transform"] = f"rotate({self.total_deg})"  
+
+                # вызов назначенного метода-обработчика по ссылке из атрибута wheel_method 
+            self.mega.wheel_method() 
+            
+            
+
+        def select_encoder(self, e) -> None:
+            """Сменить цвет обводки на красный при наведении указателя
+               мыши на енкодер."""
+            document.querySelector("body").style["cursor"] = "move"
+            self._path_id.style = "stroke: red; stroke-width: 4px; fill: url(#gradient-10)"
+
+
+
+        def no_select_encoder(self, e) -> None:
+            """Вернуть черный оттенок если убрать указатель мыши
+               из области фигуры енкодера."""
+            document.querySelector("body").style["cursor"] = "default"
+            self._path_id.style = "stroke: rgb(0, 0, 0); fill: url(#gradient-10)"
+
+
+
+        def click_wheel(self, e) -> None:
+            """При нажатии колесика мыши меняется масштаб фигуры
+                енкодера, и через короткое время вызывается встроенная
+                ф-ция, которая изменяет масштаб в нормальное значение."""
+
+            def reset():
+                self._id.attrs["transform"] = f"scale(1), rotate({self.total_deg})"
+
+            if e.which == 2:
+                self._id.attrs["transform"] = f"scale(0.98), rotate({self.total_deg})"
+                timer.set_timeout(reset, 150)
+                
+                self.mega.push_wheel_method()  
+    </code></pre>
+    <p>
+        Атрибуты которые учавствуют в программе это: <span class="bld">self.around_direction</span> - хранит 1 или -1 для определения направления вращения. 
+        А <span class="bld">self.total_deg, self.deg_step</span> - для адекватного визуального вращения рисунка ручки енкодера, только здесь.
+    </p>
+    <p>
+        В конструкторе создаются атрибуты для доступа к SVG объектам группы и объекта svg <span class="bld">path</span> ручки енкодера.
+        Атрибут <span class="bld">self._deg_step</span> устанавливает на сколько градусов провернуть изображение ручки за шаг поворота колесика мыши.
+        <span class="bld">self._total_deg</span> нужен для определения суммы углов поворота, чтобы после оборота на 360 градусов обнулить.  
+        <span class="bld">self.navigator</span> хранит имя браузера клиента, а вот как выглядит у меня вывод <span class="bld">window.navigator.userAgent</span>:
+        <pre><code class="python">
+            print(window.navigator.userAgent)
+
+        # --------------------------------------------------------------------------------------
+            console: >> Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0
+        # --------------------------------------------------------------------------------------
+        </code></pre>
+        Его не использую, оставил для справки на будущее. 
+    </p>
+    <p>
+        Обработчики событий:
+        <pre><code class="python">
+            self._id.bind("mousewheel", self.wheel)
+                # Этот для Firefox
+            self._id.bind("DOMMouseScroll", self.wheel)
+        </code></pre>
+        У меня объявлены 2 обработчика. Если документ открыт в браузерах chromium то сработает первый, для мозиллы второй. Оба имеют одинаковый колбэк-метод.
+    </p>
+    <p>
+        call-back метод обработки вращения колесика мыши:
+    </p>
+        <pre><code class="python">
+        def wheel(self, e) -> None:
+            """wheelDelta - живет в группе браузеров chromium, detail - мозилла.
+               если событие пришло от браузеров группы chromium то значение
+               вернувшее wheelDelta (120) изменяем на 1 поделив его на 120. 
+               detail есть в мозилле и он вернет или -3 или 3. В зависимости 
+               от браузера в любом случае значение объекта события нужно сделать равным 1
+               и умножить на наш шаг-градусы разовой прокрутки енкодера. Код честно спер с какого-то
+               сайта про javascript."""
+
+            delta = None
+            if hasattr(e, "wheelDelta"):
+                delta = e.wheelDelta / 120
+                self.total_deg += delta * (-self.deg_step)
+    
+            elif hasattr(e, "detail"):
+                delta = e.detail / 3
+                self.total_deg += delta * (-self.deg_step)
+                
+            if delta:
+                    # сохранить знак направления вращения, запретить прокрутку над svg объектом
+                self.around_direction = 1 if delta > 0 else -1
+                e.preventDefault()
+
+                if abs(self.total_deg) >= 360:
+                    self.total_deg = 0
+            self._id.attrs["transform"] = f"rotate({self.total_deg})"  
+
+                # вызов назначенного метода-обработчика по ссылке из атрибута wheel_method 
+            self.mega.wheel_method()
+        </code></pre>
+    <p>
+        <span class="bld">delta</span> - число, которое вернет событие <b>e.wheelDelta</b> в хроме, опере..., или <b>e.detail</b> в мозилле.
+        Возвращенное число делим на само себя, чтобы получить единицу. У нас вернется либо отрицательное значение от события, или положительное. После деления у нас будет или 1, или -1.
+        Также после присвоении <span class="bld">delta</span> значения свойству <span class="bld">@property.setter total_deg</span> присваиваем угол поворота ручки.
+        Далее проверка <span class="bld">delta</span>, если оно не равно None, то тернарный оператор присваивает <span class="bld">self.around_direction</span> соотв. значение.
+        и запрещаем прокрутку в окна браузера - <b>e.preventDefault()</b>
+        Далее код визуального эффекта: если угол поворота больше или равен 360, то установим атрибут угла поворота в нуль, если нет, то вращаем фигуру svg на этот угол.
+        Наконец перед выходом из тела метода вызывается по ссылке из <b> атрибута wheel_method</b> в экземпляре <span class="bld">ATMega</span> метод (По умолчанию равен <b>None</b>, замещается ссылкой из словаря состояний в методе <u>run()</u> на каждом цикле перед входом в блоки условного перехода по состоянию).
+    </p>
+    <p>
+        Методы-обработчики <span class="bld">select_encoder(self, e), no_select_encoder(self, e)</span> вызываются по наведению указателя мыши и вывода указателя из области svg ручки.
+        Метод <span class="bld">click_wheel(self, e)</span> вызывается по нажатию на колесико. <b style="color: rgba(197, 21, 21, 0.87);">Нажатие на колесико отследить можно только в событии "mousedown", код клавиши e.which = 2</b>
+    </p>
+    <h4 style="text-align: center;">Пользовательские обработчики событий.</h4>
+    В другой практической работе "event_coro.html" я игрался с сопрограммами и использовал пользовательские обработчики событий по достижении температуры нагрева. 
+    Здесь хоть это не относится к теме, но я привожу пример их (пользовательских событий) создания для себя.
+    <div style="padding: 15px 10px;">
+        <div style="width: 20%; margin: 20px auto; padding: 10px 10px; border: 1px dotted;">
+            <button id="inc">count</button>
+            <span id="span-count" style="margin: 0 10px; background-color: white; width: 20px;">0</span>
+            <h4 id="label-ok"></h4>
+        </div>
+
+        <script type="text/python">
+            from browser import document, window, html, bind, timer
+
+            class UserEvn:
+
+                def __init__(self, id_span: str, id_label: str) -> None:
+                    self.label = document[id_label]
+                    self.span_result = document[id_span]
+                    self.count = 0                    
+                    self.evnt = window.Event.new("count-five")
+                    document.addEventListener("count-five", self.call_event)
+
+                def plus(self) -> None:
+                    self.count += 1
+                    self.span_result.innerHTML = f"{self.count}"
+                    if self.count == 5:
+                        document.dispatchEvent(self.evnt)
+                        
+
+                def call_event(self, e):
+                    def reset():
+                        self.count = 0
+                        self.span_result.innerHTML = f"0"
+                        self.label.innerHTML = ""
+
+                    self.label.innerHTML = "событие: count = 5"
+                    timer.set_timeout(reset, 2000)
+
+
+            user_ev = UserEvn("span-count", "label-ok")
+
+            @bind(document["inc"], "click")
+            def button_inc(e):
+                user_ev.plus()
+
+        </script>
+
+    </div>
+    <pre><code class="python">
+    from browser import document, window, html, bind, timer
+
+    class UserEvn:
+
+        def __init__(self, id_span: str, id_label: str) -> None:
+            self.label = document[id_label]
+            self.span_result = document[id_span]
+            self.count = 0 
+            
+                # Pегистрация нового имени события. Aтрибут self.evnt хранит 
+                # объект события по имени "count-five"                  
+            self.evnt = window.Event.new("count-five")
+
+                # привязка имени события к кэлбэк-методу
+            document.addEventListener("count-five", self.call_event)
+
+
+
+        def plus(self) -> None:
+            """Прибавлять к self.count 1 и если self.count равно 5
+               то вызвать событие по этому поводу и через 2 сек. 
+               вернуть все как было"""
+
+            self.count += 1
+            self.span_result.innerHTML = f"{self.count}"
+            if self.count == 5:
+                    # Инициировать событие "count-five". Диспетчеру событий передаем
+                    # объект self.evnt. Вызов метода обработки события который связан с 
+                    # именем события "count-five"
+                document.dispatchEvent(self.evnt)
+                
+
+
+        def call_event(self, e) -> None:
+            """call-back обработчик события 'count-five'"""
+
+            def reset():
+                self.count = 0
+                self.span_result.innerHTML = f"0"
+                self.label.innerHTML = ""
+
+            self.label.innerHTML = "событие: count = 5"
+            timer.set_timeout(reset, 2000)
+
+
+
+
+    user_ev = UserEvn("span-count", "label-ok")
+
+    @bind(document["inc"], "click")
+    def button_inc(e):
+        user_ev.plus()
+    </code></pre>
 
     </div>
     </section>   
@@ -1232,7 +1622,7 @@
 
                 # Имя браузера (не понадобилось. Оставил на память для что-как-куда)
             self.navigator: list = window.navigator.userAgent.split("/")[2].split()[-1]
-
+            
                 # обработчики событий прокрутки колесика мыши над енкодером для браузеров Firefox и группы v8 
             self._id.bind("mousewheel", self.wheel)
                 # Этот для Firefox
@@ -1336,7 +1726,7 @@
                 
 
     # -----------------------------------------------------------------------------------------------------------
-
+    
     class Motor(Component):
         """Мотор-редуктор"""
 
@@ -1493,7 +1883,7 @@
         @degstep.setter
         def degstep(self, value) -> None:
             
-            self._total_d += float(value)
+            self._total_d += value
             if self._total_d >= 360:
                 self._total_d = 0
             
@@ -1577,10 +1967,10 @@
             # self.is_push_man_mode: bool = False
 
                 # метод вызываемый при прокрутки колеса мыши
-            self.wheel_method: Callable = self.round_wheel
+            self.wheel_method: Callable = None
 
                 # метод вызываемый при нажатии на колесо мыши
-            self.push_wheel_method: Callable = self.button_wheel
+            self.push_wheel_method: Callable = None
             
             # ---------------- атрибуты устройства ---------------------
                 # передаточное число
@@ -1869,17 +2259,17 @@
                 elif self.substate == 44:
                     self.lcd.write(f"{'\u00A0'*9}ДОВОДКА.", 2)
                     self.lcd.write(f"тек. положение: {round(self.degpos, 3)}", 5)
-                    delta = round(self.degpos, 2) - round(self.nextpoint, 2)
+                    delta = round(self.degpos, 4) - round(self.nextpoint, 4)
                     
-                    if round(self.nextpoint, 1)-0.1 <= round(self.degpos, 1) <= round(self.nextpoint, 1)+0.1:
+                    if round(self.nextpoint, 4)-0.101 <= round(self.degpos, 4) <= round(self.nextpoint, 4)+0.101:
                         self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
                         self.lcd.clean()
                         self.substate = 4    
-                    elif delta > 0.1:
+                    elif delta > 0.101:
                         self.motor.degstep = -0.01
                         self.degpos -= 0.01
                         
-                    elif delta < 0.1:
+                    elif delta < 0.101:
                         self.motor.degstep = 0.01
                         self.degpos += 0.01
 
