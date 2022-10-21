@@ -1865,22 +1865,24 @@
                         self.substate = 44
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 44-mPRECISE_FINISH
-            # режим доводки
-            
+            # доводка
                 elif self.substate == 44:
                     self.lcd.write(f"{'\u00A0'*9}ДОВОДКА.", 2)
                     self.lcd.write(f"тек. положение: {round(self.degpos, 3)}", 5)
-                    if round(self.degpos, 1) == round(self.nextpoint, 1):
+                    delta = round(self.degpos, 2) - round(self.nextpoint, 2)
+                    
+                    if round(self.nextpoint, 1)-0.1 <= round(self.degpos, 1) <= round(self.nextpoint, 1)+0.1:
                         self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
                         self.lcd.clean()
                         self.substate = 4    
-                    elif (round(self.degpos, 1) - round(self.nextpoint, 1)) > 0.1:
+                    elif delta > 0.1:
                         self.motor.degstep = -0.01
                         self.degpos -= 0.01
-                    elif (self.degpos - self.nextpoint) < 0.1:
+                        
+                    elif delta < 0.1:
                         self.motor.degstep = 0.01
                         self.degpos += 0.01
-                   
+
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 4-mPOINT
                 elif self.substate == 4:
                     
