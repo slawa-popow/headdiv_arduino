@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Симуляция устройства делительной головки</title>
         <script
         type="text/javascript"
@@ -15,6 +15,7 @@
       ></script>
 
     <style>
+
     html {
         line-height: 1.4;
         font-weight: normal;
@@ -45,8 +46,12 @@
         flex-wrap: wrap;
     }
     .about a {
-        font-size: 0.9em;
+        font-size: 0.8em;
         font-weight: bold;
+    }
+    .svg-obj {
+        overflow: scroll;
+        
     }
     .svg-obj .lcontent {
         margin: 20px 40px;
@@ -57,9 +62,9 @@
         float: left;
     }
     .svg-obj .rcontent {
-        margin: 20px 0;
+        margin: 20px 40px;
         padding: 20 10px;
-        width: 695px;
+        width: 660px;
         height: 450px;
         border: 1px solid rgba(72, 114, 230, 0.493);
         float: left; 
@@ -67,7 +72,7 @@
     .cntcontent {
         width: 10px;            
         float: left;
-        margin: 20px 10px;
+        margin: 20px 5px;
         }
     .bcontent {
         clear: both;
@@ -94,6 +99,7 @@
         padding:10px 16px;
         font-size: 1em;
         text-decoration:none;
+        display: none;
         }
     .start:hover {
         background:linear-gradient(to bottom, #68a54b 5%, #74ad5a 100%);
@@ -116,6 +122,7 @@
         padding:10px 16px;
         text-decoration:none;
         text-shadow:0px 1px 0px #854629;
+        display: none;
         }
     .stop:hover {
         background:linear-gradient(to bottom, #bc3315 5%, #d0451b 100%);
@@ -208,7 +215,9 @@
         border: 1px solid #dddddd;
         padding: 5px;
     }
-
+    code {
+        font-size: 0.9em;
+    }
     </style>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/idea.min.css">
@@ -226,6 +235,7 @@
         <a href="https://github.com/slawa-popow/headdiv_arduino">проект</a>
        </div>
     </header>
+
     <section class="svg-obj">
     <div class="lcontent">
         <svg width="450" height="350" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
@@ -263,7 +273,7 @@
     <!--  -->
     <div class="rcontent">
         <svg width="600" height="400" viewBox="0 0 400 200" 
-        xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+            xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
             <defs>
               <radialGradient gradientUnits="userSpaceOnUse" cx="553.185" cy="313.038" 
               r="104.465" id="gradient-10" 
@@ -322,8 +332,7 @@
             </g>
 
               
-           <svg xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com"
-            width=200 height=100 viewBox="0 0 200 100" id="Capa_1" x=200 y=180
+           <svg xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com" width=200 height=100 viewBox="0 0 200 100" id="Capa_1" x=10 y=180>
             <defs>
               <radialGradient gradientUnits="userSpaceOnUse" cx="135.948" cy="66.428" r="79.294" id="gradient-50" gradientTransform="matrix(0.199279, 1.245322, -1.227635, 0.196449, 162.715485, -59.408054)">
                 <stop offset="0" style="stop-color: rgb(255, 199, 120);"></stop>
@@ -337,7 +346,7 @@
                     <path d="M 143.426 78.081 C 137.975 78.081 133.21 80.967 130.538 85.285 L 130.538 80.354 C 130.538 71.981 123.75 65.193 115.377 65.193 C 109.926 65.193 105.161 68.079 102.489 72.397 L 102.489 68.983 C 102.489 60.61 95.701 53.822 87.328 53.822 C 81.877 53.822 77.112 56.708 74.44 61.026 L 74.44 15.161 C 74.44 6.788 67.652 0 59.279 0 C 50.906 0 44.118 6.788 44.118 15.161 L 44.118 129.216 L 27.117 107.418 C 21.968 100.815 12.44 99.637 5.838 104.787 C -0.765 109.936 -1.942 119.464 3.207 126.066 L 50.872 187.18 C 58.048 197.876 70.248 204.931 84.067 204.931 L 113.744 204.931 C 137.976 204.931 158.588 185.296 158.588 160.087 C 158.588 153.284 158.588 99.378 158.588 93.241 C 158.587 84.869 151.799 78.081 143.426 78.081 Z" style="fill: url(#gradient-50);" transform="matrix(-1, 0, 0, -1, 158.588298, 204.931)"></path>
                     <path id="lamp-push" d="M 62.72 236.492 C 68.242 236.492 72.72 232.015 72.72 226.492 C 72.72 211.831 84.647 199.903 99.308 199.903 C 113.968 199.903 125.896 211.831 125.896 226.492 C 125.896 232.015 130.374 236.492 135.896 236.492 C 141.418 236.492 145.896 232.015 145.896 226.492 C 145.895 200.802 124.996 179.903 99.308 179.903 C 73.62 179.903 52.72 200.802 52.72 226.492 C 52.72 232.014 57.197 236.492 62.72 236.492 Z" style="fill: rgb(147, 22, 0);" transform="matrix(-1, 0, 0, -1, 198.615997, 416.395004)"></path>
                   </g>
-                  <text id="text-hand-push"style="fill: rgb(51, 51, 51); font-size: 42px; line-height: 58px;" x="-167" y="30" >не нажато</text>
+                  <text id="text-hand-push" style="fill: rgb(51, 51, 51); font-size: 42px; line-height: 58px;" x="-107" y="30" >не нажато</text>
                 </g>
               </g>
             </g>
@@ -351,11 +360,12 @@
             <button id="man-mode" >вращать ручн.</button>
           </div>
     </div>
+</section> 
     <!--  -->
     <div class="bcontent">
     <div class="declaration">
         <h1>Как пользоваться</h1>
-        <p>Для нормальной работы программы нужно, чтобы устройство, на котором открыт этот html файл, было подключено к сети интернет (документ загружает из сети транслятор python - Brython и скрипт подсветки кода), а также к устройству должна быть подсоединена мышь (т-к программа работает как симулятор управления электронным устройством енкодером вместо кнопок).
+        <p>Для нормальной работы программы нужно, чтобы устройство, на котором открыт этот html файл, было подключено к сети интернет (документ загружает из сети транслятор python - Brython и скрипт подсветки кода), а также к устройству должна быть подсоединена мышь с колесиком(т-к программа работает как симулятор управления электронным устройством енкодером вместо кнопок).
             У меня нормально работает в браузерах: chrome, mozilla firefox.
         </p>
         <p>Программа состоит из 3-х веток: 
@@ -469,7 +479,7 @@
         Вызов функции <span class="bld">print(get_center("val")) </span>  произвести в глобальной области видимости. Выведенные значения кортежа в консоль браузера нужно записать в  <span class="bld">transform-origin </span> объекта. Если такого атрибута нет, создать. Всегда нужно находить и задавать центр той фигуры, которую нужно вращать, иначе она будет вращаться вокруг центра общей системы координат.
     </p>   
      <p>Масштаб фигур  <span class="bld">svg width="450" height="350" viewBox="0 0 250 150"</span> подбираем опытным путем с разницей 200 пикселей, т-е ширина и высота на 200px больше <span class="bld">width height viewBox</span>, а <span class="bld">min-x min-y viewBox</span> - нули. </p>  
-     <table class="table" style="width: 45%;">
+     <table class="table" style="width: 70%;">
         <caption>id svg объектов мотор-редуктора:</caption>
         <thead>
             <tr>
@@ -503,7 +513,7 @@
     </p>
     <p>Линия-маркер находится в группе ручки, поэтому вращается вместе с ней.</p>
 
-    <table class="table" style="width: 45%;">
+    <table class="table" style="width: 70%;">
         <caption>id svg объектов енкодера, дисплея и руки:</caption>
         <thead>
             <tr>
@@ -541,6 +551,7 @@
     <p>Полумесяц под рукой меняет цвет в состоянии имитации нажатия и удержании кнопки "вращать ручн.".</p>
 
     <div class="ttl" id="uml"><h2>Объектная модель.</h2></div>
+    <div class="svg-obj">
      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
 <svg width="1400" height="1200" viewBox="60 263 1550 1450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -678,7 +689,7 @@
     </g>
   </g>
 </svg>
-
+</div>
     <p>
         По UML диаграмме можно рассмотреть некоторое сходство с поведенческим паттерном "Посредник (Mediator)". Мне было необходимо, чтобы между главным объектом класса ATMega и объектами-компонентами (дисплей, мотор, енкодер) была двусторонняя связь и при этом общаться каждый из объектов-компонентов должен был только с ATMega.
         Как в реальности - дисплей не может ничего передать драйверу шагового мотора и наоборот без микроконтроллера. Енкодер может послать импульсы драйверу, но не надо. В отличии от классической структуры паттерна, в этой структуре я не добавлял интерфейс, т-к посчитал излишним конкретно для этого скрипта. 
@@ -1314,7 +1325,7 @@
 
 
             user_ev = UserEvn("span-count", "label-ok")
-
+            
             @bind(document["inc"], "click")
             def button_inc(e):
                 user_ev.plus()
@@ -1371,14 +1382,263 @@
 
 
     user_ev = UserEvn("span-count", "label-ok")
-
+    
     @bind(document["inc"], "click")
     def button_inc(e):
         user_ev.plus()
     </code></pre>
 
+    <div class="ttl" id="class-Motor"><h2>class Motor</h2></div>
+
+    <p>
+        Задача класса <span class="bld">Point</span> вращать вал редуктора на заданный угол и рисовать вокруг вала точки окружности по расчитанным углам, а также текстовые значения углов точек. 
+    </p>
+    <pre><code class="python">
+    class Motor(Component):
+        """Мотор-редуктор"""
+
+        svg_attrs_point: tuple = ("id", "cx", "cy", "r")
+        svg_attrs_text: tuple = ("id", "x", "y")
+        svg_attrs_line: tuple = ("id", "x1", "y1", "x2", "y2")            
+        
+
+        def __init__(self, id_val: str, id_limb: str) -> None:
+            super().__init__()
+
+                # объект вала
+            self._id = document[id_val]
+
+                # оъект круглой толстой штуки вогруг синего вала
+            self._limb = document[id_limb]
+
+                # на сколько градусов провернут вал
+            self._total_d: float = 0
+
+                # намеченные точки вокруг вала
+            self.points: dict = dict()
+                
+                # объекты текста (числа в градусах возле точек)
+            self.text_deg_point: list = list()
+
+                # g группа для точек
+            self.gservo = document["servo"]
+            self.arrow_line = None
+            
+        # ------------------------------------------------------------------------------
+        
+        def create_points(self) -> None:
+            """Нарисовать точки-окружности после команды ДА равномерная разметка или не равномерная разметка.
+               Значения углов берется из уже заполненного в одном из состояний списка self.mega.groupdegs.
+               Также рисуется линия-указатель и текст число градусов возле точки. С позиции относительный нуль справа."""
+
+            cx = float(self.limb["cx"])
+            cy = float(self.limb["cy"])
+            
+            deg_pos = self.mega.degpos
+            tmp_deg = 0
+            radius = int(self.limb["r"])+15
+
+            def make_text_deg(value, *args):
+                """Текст угол волзе точки
+                параметры value: int *args =  id: str, crdX: int, crdY: int, """
+
+                svgNS = "http://www.w3.org/2000/svg"
+                label_point = document.createElementNS(svgNS, "text")
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_text, args):
+                    label_point.setAttributeNS(*attribute)
+                label_point.setAttributeNS(None, "style", f"fill: black; font-family: monospace; font-size: {5}px;")
+                label_point.textContent = f"{int(value)}\u00B0"
+                self.text_deg_point.append(label_point)
+                return label_point
+
+
+            def make_point(*args):
+                """Создать точки вокруг вала.
+                   *args = id: str, posX: int, posY: int, radius: float"""
+
+                svgNS = "http://www.w3.org/2000/svg"
+                point =  document.createElementNS(svgNS,"circle")
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_point, args):
+                    point.setAttributeNS(*attribute)
+                point.setAttributeNS(None, "fill", "rgba(137, 17, 173, 0.7)")
+                return point
+
+
+            def make_line(*args):
+                """Линия-указатель от центра вала до точки.
+                args = id: str, cx: float, cy: float, posx, posy"""
+
+                
+                svgNS = "http://www.w3.org/2000/svg"
+                ln = document.createElementNS(svgNS,"line")
+                for attribute in map(lambda x, y: (None, x, y), self.svg_attrs_line, args):
+                    ln.setAttributeNS(*attribute) 
+                ln.setAttributeNS(None, "stroke", "rgba(236, 35, 62, 0.815)")
+                ln.setAttributeNS(None, "stroke-width", "2px")
+                return ln
+
+            
+            for i, delta in enumerate(self.mega.groupdegs):
+                key: str = "point-"+str(i)
+                posX = cx + radius * math.cos(((tmp_deg ) * math.pi) / 180)
+                posY = cy + radius * math.sin(((tmp_deg ) * math.pi) / 180)
+                obj_point = make_point(key, posX, posY, 3) 
+                obj_text_point = make_text_deg(tmp_deg, "text-"+key, posX+3, posY+2)
+                self.gservo.appendChild(obj_point)
+                self.gservo.appendChild(obj_text_point)
+                    # ключ - номер пп, значение - объект
+                self.points[i] = obj_point
+                tmp_deg += delta
+                
+            
+                # -deg_pos * math.pi для того чтобы после поворота вала 
+                # (после отмены или ручного поворота, 2 круга программы) кружки и линия 
+                # рисовалить с нулем справа посередине вала (на 90 град от верха, или на 15-00 часов). 
+            posx_line = cx + radius * math.cos((-deg_pos * math.pi) / 180)
+            posy_line = cy + radius * math.sin((-deg_pos * math.pi) / 180)
+            obj_line = make_line("arrow-line", cx, cy, posx_line, posy_line)
+            self.arrow_line = obj_line
+            self.id.appendChild(obj_line)
+                
+        # ------------------------------------------------------------------------------
+            
+        def delete_points(self) -> None:
+            """Удалить точки, значения угла и линию по 
+               выходе из меню, конца программы."""
+
+            if self.points:
+                for key, val in self.points.items():
+                    self.gservo.removeChild(val)
+                self.points.clear()
+                if self.arrow_line:
+                    self.id.removeChild(self.arrow_line)
+                if self.text_deg_point:
+                    for txtp in self.text_deg_point:
+                        self.gservo.removeChild(txtp)    
+                self.text_deg_point.clear()
+
+
+        def null_position(self) -> None:
+            """обнулить позицию вала"""
+            self._total_d = 0
+            self.id.attrs["transform"] = f"rotate(0)"
+
+
+
+        @property
+        def id(self):
+            return self._id
+
+        @id.setter
+        def id(self, value) -> None:
+            pass
+
+
+        @property
+        def limb(self):
+            return self._limb
+
+        @limb.setter
+        def limb(self, value) -> None:
+            pass
+
+        
+        @property
+        def degstep(self) -> int:
+            return self._total_d
+
+        @degstep.setter
+        def degstep(self, value) -> None:
+            
+            self._total_d += value
+            if self._total_d >= 360:
+                self._total_d = 0
+            
+            self.id.attrs["transform"] = f"rotate({self._total_d})"  
+    </code></pre>
+
+    <p>Атрибуты (кортежи) класса: 
+    <pre><code class="python">
+        svg_attrs_point: tuple = ("id", "cx", "cy", "r")
+        svg_attrs_text: tuple = ("id", "x", "y")
+        svg_attrs_line: tuple = ("id", "x1", "y1", "x2", "y2")
+    </code></pre>
+        нужны для создания атрибутов графических объектов SVG и задания им значений в цикле (на каждой итерации берется из сформированного map() итератора кортеж для передачи в <span class="bld">setAttributeNS</span>) тела встроенных функций метода <span class="bld">self.create_points()</span>.  
+        Атрибут словарь <span class="bld">self.points: dict</span> хранит SVG объекты созданных точек, где <b>{№ точки : объект svg}</b>. Список <span class="bld">self.text_deg_point: list</span> хранит объекты svg текстовых значений углов возле точек. Атрибут <span class="bld">self.arrow_line</span> - SVG объект линии указателя явно инициализированный пока ничем.
+    </p>
+    <p>
+        Свойсво <span class="bld">@property degstep</span> возвращает и задает угол поворота вала. Сеттер 
+        <pre><code class="python">
+            @degstep.setter
+            def degstep(self, value) -> None:
+                
+                self._total_d += value
+                if self._total_d >= 360:
+                    self._total_d = 0
+                
+                self.id.attrs["transform"] = f"rotate({self._total_d})"
+        </code></pre>
+        "аккумулирует" присваемое значение угла в <span class="bld">self._total_d</span> и если оно выходит за границу в 259 градусов, то обнуляется. Записывается значение в SVG атрибут <b>transform</b> как <span class="bld">transform="rotate(число)"</span>.
+    </p>
+    <p>
+        Метод <b>self.create_points()</b> создает и рисует точки-окружности с текстовым значением углов и стрелку линию-указатель вокруг вала перед началом программы автоматической разметки. Подразумевается, что количество точек уже известно к моменту вызова этого метода (список <span class="bld">mega.groupdegs</span>).  
+        <pre><code class="python">
+        def create_points(self) -> None:
+            """Нарисовать точки-окружности после команды ДА равномерная разметка или не равномерная разметка.
+               Значения углов берется из уже заполненного в одном из состояний списка self.mega.groupdegs.
+               Также рисуется линия-указатель и текст число градусов возле точки. С позиции относительный нуль справа."""
+
+            cx = float(self.limb["cx"])
+            cy = float(self.limb["cy"])
+            
+            deg_pos = self.mega.degpos
+            tmp_deg = 0
+            radius = int(self.limb["r"])+15
+
+                . . . 
+                # вложенные функции
+                . . . 
+
+            for i, delta in enumerate(self.mega.groupdegs):
+                key: str = "point-"+str(i)
+                posX = cx + radius * math.cos(((tmp_deg ) * math.pi) / 180)
+                posY = cy + radius * math.sin(((tmp_deg ) * math.pi) / 180)
+                obj_point = make_point(key, posX, posY, 3) 
+                obj_text_point = make_text_deg(tmp_deg, "text-"+key, posX+3, posY+2)
+                self.gservo.appendChild(obj_point)
+                self.gservo.appendChild(obj_text_point)
+                    # ключ - номер пп, значение - объект
+                self.points[i] = obj_point
+                tmp_deg += delta
+                
+            
+                # -deg_pos * math.pi для того чтобы после поворота вала 
+                # (после отмены или ручного поворота, 2 круга программы) кружки и линия 
+                # рисовалить с нулем справа посередине вала (на 90 град от верха, или на 15-00 часов). 
+            posx_line = cx + radius * math.cos((-deg_pos * math.pi) / 180)
+            posy_line = cy + radius * math.sin((-deg_pos * math.pi) / 180)
+            obj_line = make_line("arrow-line", cx, cy, posx_line, posy_line)
+            self.arrow_line = obj_line
+            self.id.appendChild(obj_line)
+        </code></pre>
+
+        <span class="bld">cx, cy</span> - координаты центра кругляка вокруг вала, его центр совпадает с центром вала. (можно было взять центр вала) Вообще этот кругляк (декоративный элемент. В реальности это "сальник" радиальное уплотнение) имел предназначение, но теперь нет.
+        <span class="bld">deg_pos</span> - текущий угол поворота вала. Используется чтобы указатель-линия показывала на нуль в начале программы независимо от того на какой угол был ранее повернут вал.
+        <span class="bld">radius</span> - радиус от центра вала (кругляка) до невидимой окружности по которой расположены точки.
+    </p>
+    <p>
+        В цикле <b>for</b> создается тектовая переменная с <span class="bld">id </span> будущего объекта, <span class="bld">posX, posY</span> - координаты точки в системе координат <span class="bld">группы g "servo"</span>. 
+        <span class="bld">tmp_deg</span> - переменная аккумулятор. На каждой итерации суммирует текущее свое значение со значением угла <span class="bld">delta</span> на который нужно повернуться. 
+        Далее вызов встроенных функций, которым передаются id, координаты, значение угла. Функции создают SVG объекты и возращают его. Далее объекты добавляются в структуру SVG разметки и должны быть видны. 
+        Добавляем созданные объекты в словарь и увеличение <span class="bld">tmp_deg</span> на угол сдвига. <span class="bld">tmp_deg</span> в сумме будет 360. Последним после цикла создается объект указателя-линии. Координаты расчитываются исходя из текущей позиции вала.
+        Текщая позиция сначала будет 0 и поэтому начало будет справа по середине (на 15-00 часов). Если например провернуть вручную вал и включить программу автоматической разметки и потом снова выбрать программу разметки, то когда вызовется этот метод, линия будет показывать не на 0, а куда-то.
+        Поэтому, чтобы линия всегда показывала на 0 в начале программы разметки не зависимо от положения вала, нужно ей как-то компенсировать угол поворота вала относительно нуля. В формуле <span class="bld">math.pi</span> умножаем на отрицательное значение текущего угла поворота, вместо нуля.
+    </p>
+    <p>Метод <span class="bld">self.delete_points()</span> удаляет из структуры SVG, словаря графические объекты и очищает словарь.
+    <span class="bld">self.null_position()</span> поворачивает рисунок вала в исходное нулевое положение.
+    </p>
     </div>
-    </section>   
+      
 
      <!-- <pre><code class="python">
         
@@ -1980,7 +2240,7 @@
             self._vauto: float = 0.8
 
                 # скорость в ручном режиме
-            self._vman: int = 1
+            self._vman: int = 4
 
                 # текущий угол относительно нуля
             self.current_angle: float = 0.0
@@ -2250,7 +2510,6 @@
                     if (self.nextpoint-0.5 <= self.degpos <= self.nextpoint+0.5):
                         #self.motor.id.attrs["transform"] = f"rotate({self.counter_point*self.nextpoint})"
 
-                        
                         self.lcd.clean()
                         self.substate = 44
 
@@ -2264,11 +2523,12 @@
                     if round(self.nextpoint, 4)-0.101 <= round(self.degpos, 4) <= round(self.nextpoint, 4)+0.101:
                         self.motor.points[self.counter_point].style["fill"] = "rgb(0, 147, 49)"
                         self.lcd.clean()
-                        self.substate = 4    
+                        self.substate = 4 
+
                     elif delta > 0.101:
                         self.motor.degstep = -0.01
                         self.degpos -= 0.01
-                        
+
                     elif delta < 0.101:
                         self.motor.degstep = 0.01
                         self.degpos += 0.01
@@ -2282,7 +2542,7 @@
                     self.lcd.write(navigate, 8)
                     self.lcd.write(f"{'\u00A0'*9}ПАУЗА.", 4)
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: 
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> substate: mSTOP 
                 elif self.substate == 0:
                     self.state = 7
                     
@@ -2881,7 +3141,7 @@
     motor = Motor("val", "limb")
     controller = ATMega(lcd_display, man_encoder, motor)
     controller.run()
-
+    
             # disabled
     @bind(document["power-on"], "click")
     def start_rotate(e):
